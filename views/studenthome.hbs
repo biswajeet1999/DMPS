@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>DMPS</title>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!--j-Query-->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <!--local css-->
+    <style>
+        header {
+          min-height: 600px;
+
+        }
+
+        .carousel-slider {
+          min-height: 600px;
+        }
+
+        .slide1 {
+          background-size: cover;
+          background: url('../../academy-celebrate-celebration-267885.jpg');
+          background-position: center;
+        }
+
+        .slide2 {
+          background-size: cover;
+          background: url('../../alphabet-blur-books-301920.jpg');
+          background-position: center;
+        }
+
+        .slide3 {
+          background-size: cover;
+          background: url('../../alphabet-class-conceptual-301926.jpg');
+          background-position: center;
+        }
+
+        @media screen and (max-width: 1000px) {
+          header {
+            min-height: 500px;
+          }
+          
+          .carousel-slider {
+            min-height: 500px;
+          }
+
+          .header-name {
+            font-size: 70px;
+          }
+        }
+        /* darken the corousal */
+        .overlay {
+          width: 100%;
+          height: 100%;
+          top: 0px;
+          bottom: 0px;
+          background: rgba(0,0,0,0.7);
+        }
+    </style>
+
+</head>
+<body>
+    <!--header-->
+    <header>
+        <!--navbar-->
+        <nav class="blue">
+          <div class="container">
+            <div class="nav-wrapper">
+                <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <a href="#" class="brand-logo">DMPS</a>
+                <ul id="nav-mobile" class="left hide-on-med-and-down right">
+                  <li><a href="#">Home</a></li>
+                  <li><a href="/student/notice">Notice</a></li>
+                  <li><a href="/student/teacher">Teacher</a></li>
+                  <li><a href="/student/marks">Mark</a></li>
+                  <li><a href="/student/logout">logout</a></li>
+                  <li><a href="#">{{name}}</a></li>
+                </ul>              
+                <!--sidebar menu-->
+                <ul class="sidenav" id="mobile-demo">
+                    <li><a href="#">{{name}}</a></li>
+                    <li><a href="#" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Home</a></li>
+                    <li><a href="/student/notice" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Notice</a></li>
+                    <li><a href="/student/teacher" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Teacher</a></li>
+                    <li><a href="/student/marks" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Mark</a></li>
+                    <li><a href="/student/logout" class="btn waves-effect light-blue accent-3 white-text z-depth-4">logout</a></li>
+                  </ul>
+                </div>              
+            </div>
+        </nav>
+        <!--courosal-->
+        <div class="carousel carousel-slider center" style="position: relative;">
+            
+            <div class="carousel-fixed-item center">
+              <h1  class="white-text flow-text">DEEPAK MEMORIAL PUBLIC SCHOOL</h1>
+            </div>
+
+            <div class="carousel-item white-text slide1" href="#one!">
+                <div class="overlay" style="position: absolute;">
+                  <h2 class="lime-text darken-3 flow-text">“Education is the most powerful weapon which you can use to change the world.”</h2>
+                  <p class="flow-text">- Nelson Mandela</p>
+                </div>
+            </div>
+
+            <div class="carousel-item amber white-text slide2" href="#two!">
+                <div class="overlay" style="position: absolute;">
+                  <h2 class="teal-text darken-3 flow-text">“An investment in knowledge pays the best interest.”</h2>
+                  <p class="white-text flow-text">- Benjamin Franklin</p>
+                </div>
+            </div>
+
+            <div class="carousel-item green white-text slide3" href="#three!">
+                <div class="overlay" style="position: absolute;">
+                  <h2 class="red-text darken-2 flow-text">“Education is what remains after one has forgotten what one has learned in school.”</h2>
+                  <p class="white-text flow-text">- Albert Einstein</p>
+                </div>
+            </div>
+
+          </div>
+    </header>  
+    
+    <!--materialize init-->
+    <script>
+      
+      $('document').ready(() => {
+        // sidebar init
+        $('.sidenav').sidenav();
+        // courasol
+        $('.carousel.carousel-slider').carousel({
+          fullWidth: true,
+          indicators: true
+        });
+
+        setInterval(function() {
+          $('.carousel').carousel('next');
+        }, 4000);
+
+      });
+      
+    </script>
+    
+    <!--JavaScript at end of body for optimized loading-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>

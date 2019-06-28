@@ -1,0 +1,48 @@
+header {
+  min-height: 600px;
+
+}
+
+.carousel-slider {
+  min-height: 600px;
+}
+
+.slide1 {
+  background-size: cover;
+  background: url('academy-celebrate-celebration-267885.jpg');
+  background-position: center;
+}
+
+.slide2 {
+  background-size: cover;
+  background: url('alphabet-blur-books-301920.jpg');
+  background-position: center;
+}
+
+.slide3 {
+  background-size: cover;
+  background: url('alphabet-class-conceptual-301926.jpg');
+  background-position: center;
+}
+
+@media screen and (max-width: 1000px) {
+  header {
+    min-height: 500px;
+  }
+  
+  .carousel-slider {
+    min-height: 500px;
+  }
+
+  .header-name {
+    font-size: 70px;
+  }
+}
+/* darken the corousal */
+.overlay {
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  bottom: 0px;
+  background: rgba(0,0,0,0.7);
+}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>DMPS</title>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!--j-Query-->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <!--local css-->
+    
+</head>
+<body>
+    <!--header-->
+    <header>
+        <!--navbar-->
+        <nav class="blue">
+          <div class="container">
+            <div class="nav-wrapper">
+                <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <a href="#" class="brand-logo">DMPS</a>
+                <ul id="nav-mobile" class="left hide-on-med-and-down right">
+                  <li><a href="/admin/home">Home</a></li>
+                  <li><a href="/admin/notice">Notice</a></li>
+                  <li><a href="/admin/teacher">Teacher</a></li>
+                  <li><a href="/admin/student">Student</a></li>
+                  <li><a href="/admin/mark">Mark</a></li>
+                  <li><a href="/admin/class">Class</a></li>
+                  <li><a href="/admin/logout">logout</a></li>
+                  <li><a href="#">{{name}}</a></li>
+                </ul>              
+                <!--sidebar menu-->
+                <ul class="sidenav" id="mobile-demo">
+                    <li><a href="#">{{name}}</a></li>
+                    <li><a href="/admin/home" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Home</a></li>
+                    <li><a href="/admin/notice" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Notice</a></li>
+                    <li><a href="/admin/teacher" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Teacher</a></li>
+                    <li><a href="admin/student" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Student</a></li>
+                    <li><a href="/admin/mark" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Mark</a></li>
+                    <li><a href="/admin/class" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Class</a></li>
+                    <li><a href="/admin/logout" class="btn waves-effect light-blue accent-3 white-text z-depth-4">logout</a></li>
+                  </ul>
+                </div>              
+            </div>
+        </nav>
+    </header> 
+
+    {{!-- body --}}
+
+    <div  class="back"></div>
+
+    <section style="margin-top:3%">
+      <div class="row">
+        <div class="col s6 offset-s3">
+          <div class="card-panel black-text">
+            <form action="/admin/student/delete" method="POST" enctype="multipart/form-data">
+                
+                <div class="row">
+                  <div class="input-field col s12">
+                    <input id="name" type="text" class="validate" name="name">
+                    <label for="name">Name</label>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="input-field col s6">
+                    <input id="id" type="text" class="validate" name="id">
+                    <label for="id">Id</label>
+                  </div>
+                </div>
+
+                <button class="btn waves-effect waves-light right red" type="submit" name="action" style="position:relative; top: -22px">Delete
+                  <i class="material-icons right">delete</i>
+                </button>
+
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s12 center">{{msg}}</div>
+      </div>
+    </section>
+    
+    <!--materialize init-->
+    <script>
+      
+      $('document').ready(() => {
+        // sidebar init
+        $('.sidenav').sidenav();
+      });
+
+    </script>
+    
+    <!--JavaScript at end of body for optimized loading-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
