@@ -7,6 +7,7 @@ const passport = require("passport");
 const authtoken = require('passport-auth-token');
 const Strategy = require('passport-local').Strategy;
 const cookieSession = require('cookie-session');
+
 // local modules
 const {mongoose} = require('./db/mongoose');
 const {TeacherModel} = require('./models/teachers');
@@ -17,17 +18,17 @@ const {SubjectModel} = require('./models/subjects');
 const {MarkModel} = require('./models/marks');
 const {AdminModel} = require('./models/admin');
 
-
 const app = express();
 
-// cookiewill valied for 1hr (in milli second)
-// key is used to encrypt cession id
-app.use(cookieSession({ maxAge: 60 * 60 * 1000, keys: ['dmps'] }));
+// setup static routs
+app.set('view engine', 'hbs');
+app.use(express.static(path.join(__dirname,"/public/css")));
+app.use(express.static(path.join(__dirname,"/public/images")));
+app.use(express.static(path.join(__dirname, '/public/upload')));
 
-// initialize passport
-app.use(passport.initialize());
-app.use(passport.session());
+hbs.registerHelper('getIndex', (index) => index+1);
 
+// setup multer upload path
 const storage = multer.diskStorage({
   destination: './public/upload/',
   filename: function(req, file, cb) {
@@ -39,42 +40,93 @@ const upload = multer({
   storage: storage
 });
 
-app.set('view engine', 'hbs');
-app.use(express.static(path.join(__dirname,"/public/css")));
-app.use(express.static(path.join(__dirname,"/public/images")));
-app.use(express.static(path.join(__dirname, '/public/upload')))
+// =================================================================================================================================
+// ========================================== P A S S P O R T   A N D   C O O K I E ================================================
+// =================================================================================================================================
 
-hbs.registerHelper('getIndex', (index) => index+1);
 
-const port = process.env.PORT || 3000;
+// cookie will valied for 1hr (in milli second)
+// key is used to encrypt cession id
+app.use(cookieSession({ maxAge: 60 * 60 * 1000, keys: ['dmps'] }));
+
+// initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // set student/admin id to browser cookie
 passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
 
-// studentVerified or adminVerified is set to req object
-// after they verified
+// access the browswer cookie
+// user is set to req object after they verified
 passport.deserializeUser(function(id, done) {
-  // StudentModel.findById(id).then((studentVerified) => {
-  //   // student login
-  //   if (studentVerified) {
-  //     done(null, studentVerified);
-  //   } else {
-  //     // admin login
-  //     AdminModel.findById(id).then((adminVerified) => {
-  //       done(null, adminVerified)
-  //     });
-  //   }
-  // }); 
+  StudentModel.findById(id).then((user) => {
+    // student login
+    if (user) {
+      done(null, user);
+    } else {
+      // admin login
+      AdminModel.findById(id).then((user) => {
+        done(null, user)
+      });
+    }
+  })
 });
 
+// passport student authantication
+passport.use('Student', new Strategy({
+  usernameField: 'id',
+  passwordField: 'password'
+}, function(username, password, done) {
+        StudentModel.findOne({ studentid: username, password }, function (err, user) {
+          if (err) { return done(err); }
+          if (!user) {
+            return done(null, false, { message: 'Incorrect username or password' });
+          } else {
+            return done(null, user);
+          }
+        });
+    })
+);
 
-app.listen(port, () => {
-  console.log(`Server started at port ${port}`)
-});
+// passport admin authantication
+passport.use('Admin', new Strategy({
+  usernameField: 'id',
+  passwordField: 'password'
+}, function(username, password, done) {
+        AdminModel.findOne({ adminid: username, password }, function (err, user) {
+          if (err) { return done(err); }
+          if (!user) {
+            
+            return done(null, false, { message: 'Incorrect username or password' });
+          } else {
+            return done(null, user);
+          }
+        });
+    })
+);
 
-// before login common rout
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+ 
+  // if the user is invallid redirect to login page
+  // if he/she is student redirect to student login page else admin login page
+  if (req.route.path.startsWith('/student')) {
+    // student login
+    res.redirect('/student/login');
+  } else {
+    // admin login
+    res.redirect('/admin/login');
+  }
+}
+
+// =================================================================================================================================
+// ================================================ G E N E R A L   R O U T S ======================================================
+// =================================================================================================================================
+
 app.get('/', (req, res) => {
   res.render('home.hbs');
 });
@@ -103,50 +155,14 @@ app.get('/notice', (req, res) => {
   });
 });
 
-
-// passport student authantication
-passport.use('Student', new Strategy({
-  usernameField: 'id',
-  passwordField: 'password'
-}, function(username, password, done) {
-        StudentModel.findOne({ studentid: username, password }, function (err, user) {
-          if (err) { return done(err); }
-          if (!user) {
-            return done(null, false, { message: 'Incorrect username or password' });
-          } else {
-            return done(null, user);
-          }
-        });
-    })
-);
-
 app.get('/student/login', (req, res) => {
   res.render('studentlogin.hbs');
 });
-
 
 app.post('/student/signin', upload.single(), passport.authenticate('Student', {
   successRedirect: '/student/home',
   failureRedirect: '/student/login',
 }));
-
-
-// passport admin authantication
-passport.use('Admin', new Strategy({
-    usernameField: 'id',
-    passwordField: 'password'
-  }, function(username, password, done) {
-          AdminModel.findOne({ adminid: username, password }, function (err, user) {
-            if (err) { return done(err); }
-            if (!user) {
-              
-              return done(null, false, { message: 'Incorrect username or password' });
-            } else {
-              return done(null, user);
-            }
-          });
-      })
-);
 
 app.get('/admin/login', (req, res) => {
   res.render('adminlogin.hbs');
@@ -155,7 +171,6 @@ app.get('/admin/login', (req, res) => {
 app.post('/admin/signin', upload.single(), passport.authenticate('Admin', {
   successRedirect: '/admin/home',
   failureRedirect: '/admin/login',
-  session: false
 }));
 
 // =================================================================================================================================
@@ -163,19 +178,17 @@ app.post('/admin/signin', upload.single(), passport.authenticate('Admin', {
 // =================================================================================================================================
 
 
-function ensureAuthenticatedStudent(req, res, next) {
-  if (req.studentVerified) {
-   return next();
-  }
-  console.log('err')
-}
-
 // student routs after login
-app.get('/student/home', (req, res) => {
+app.get('/student/home', ensureAuthenticated, (req, res) => {
   res.render('studenthome.hbs', {name:'Biswajeet'});
 });
 
-app.get('/student/notice', ensureAuthenticatedStudent, (req, res) => {
+app.get('/student/logout', ensureAuthenticated, (req, res) => {
+  req.logout();
+  res.redirect('/student/login');
+});
+
+app.get('/student/notice', ensureAuthenticated, (req, res) => {
   NoticeModel.find({}).then((notices) => {
     if (notices.length === 0) {
       res.status(200).render('studentnotice.hbs', {name: 'Biswajeet',msg: "No Notice"});
@@ -188,7 +201,7 @@ app.get('/student/notice', ensureAuthenticatedStudent, (req, res) => {
 });
 
 
-app.get('/student/teacher', (req, res) => {
+app.get('/student/teacher', ensureAuthenticated, (req, res) => {
   TeacherModel.find({}).then((teachers) => {
     if (teachers.length === 0) {
       res.status(200).render('studentteacher.hbs', {name: 'Biswajeet', msg: "No Teacher found:("});
@@ -207,20 +220,25 @@ app.get('/student/teacher', (req, res) => {
 
 
 // admin routs after login
-app.get('/admin/home', (req, res) => {
+app.get('/admin/home', ensureAuthenticated, (req, res) => {
   res.render('adminhome.hbs', {name: 'Admin'});
 });
 
+app.get('/admin/logout', ensureAuthenticated, (req, res) => {
+  req.logout();
+  res.redirect('admin/login');
+});
+
 // ----------------------------- Student Section ------------------------------------
-app.get('/admin/student', (req, res) => {
+app.get('/admin/student', ensureAuthenticated, (req, res) => {
   res.render('adminstudent.hbs', {name: 'Admin'});
 });
 
-app.get('/admin/student/add', (req, res) => {
+app.get('/admin/student/add', ensureAuthenticated, (req, res) => {
   res.render('adminstudentadd.hbs');
 });
 
-app.post('/admin/student/store', upload.single(), (req, res) => {
+app.post('/admin/student/store', ensureAuthenticated, upload.single(), (req, res) => {
   let name = req.body.name;
   let father = req.body.father;
   let mother = req.body.mother;
@@ -248,11 +266,11 @@ app.post('/admin/student/store', upload.single(), (req, res) => {
   });
 });
 
-app.get('/admin/student/update', (req, res) => {
+app.get('/admin/student/update', ensureAuthenticated, (req, res) => {
   res.render('adminstudentupdate.hbs', {name: 'Admin'});
 });
 
-app.post('/admin/student/modify', upload.single(), (req, res) => {
+app.post('/admin/student/modify', ensureAuthenticated, upload.single(), (req, res) => {
   let old_stud = {name: req.body.old_name, father: req.body.old_father, mother: req.body.old_mother, phone: req.body.old_phone, address: req.body.old_address};
   let new_stud = {name: req.body.new_name, father: req.body.new_father, mother: req.body.new_mother, phone: req.body.new_phone, address: req.body.new_address};
  
@@ -267,11 +285,11 @@ app.post('/admin/student/modify', upload.single(), (req, res) => {
   });
 });
 
-app.get('/admin/student/remove', (req, res) => {
+app.get('/admin/student/remove', ensureAuthenticated, (req, res) => {
   res.render('adminstudentremove.hbs', {name: 'Admin'});
 });
 
-app.post('/admin/student/delete', upload.single(), (req, res) => {
+app.post('/admin/student/delete', ensureAuthenticated, upload.single(), (req, res) => {
   StudentModel.findOneAndDelete({name: req.body.name, studentid: req.body.id}).then((student) => {
     if (!student) {
       res.render('adminstudentremove.hbs', {name: 'Admin', msg: "No Student Found"});
@@ -284,14 +302,14 @@ app.post('/admin/student/delete', upload.single(), (req, res) => {
 })
 
 // it will give remove batch form
-app.get('/admin/student/removebatch', (req, res) => {
+app.get('/admin/student/removebatch', ensureAuthenticated, (req, res) => {
   res.render('adminstudentremovebatch.hbs', {name: 'Admin'});
 });
 
 // it will completely remove students from database
 // it will take passout year of the batch
 // before removing this the class of the batch should be removed
-app.post('/admin/student/deletebatch', upload.single(), (req, res) => {
+app.post('/admin/student/deletebatch', ensureAuthenticated, upload.single(), (req, res) => {
   let passout_year = req.body.dop;
   StudentModel.deleteMany({dateOfPassout: passout_year}).then((students) => {
     res.render('adminstudentremovebatch.hbs', {name: 'Admin', msg: `${passout_year} Batch removed successfully`, total: students.deletedCount});
@@ -302,17 +320,17 @@ app.post('/admin/student/deletebatch', upload.single(), (req, res) => {
 
 // ----------------------------- Teacher Section ------------------------------------
 
-app.get('/admin/teacher', (req, res) => {
+app.get('/admin/teacher', ensureAuthenticated, (req, res) => {
   res.render('adminteacher.hbs', {name: 'Admin'});
 });
 
 // show the add teacher form
-app.get('/admin/teacher/add', (req, res) => {
+app.get('/admin/teacher/add', ensureAuthenticated, (req, res) => {
   res.render('adminteacheradd.hbs', {name: 'Admin'});
 });
 
 // store the teacher
-app.post('/admin/teacher/save', upload.single('image'), (req, res) => {
+app.post('/admin/teacher/save', ensureAuthenticated, upload.single('image'), (req, res) => {
   new TeacherModel({name: req.body.name, contact: req.body.contact, email: req.body.email, imagePath: req.file.filename}).save().then((teacher) => {
     res.render('adminteacheradd.hbs', {name: 'Admin', msg: 'Teacher added successfully.'});
   }, (err) => {
@@ -334,7 +352,7 @@ app.get('/admin/teacher/remove', (req, res) => {
 });
 
 // delete the teacher
-app.get('/admin/teacher/delete/:name/:email/:contact', (req, res) => {
+app.get('/admin/teacher/delete/:name/:email/:contact', ensureAuthenticated, (req, res) => {
   TeacherModel.findOneAndDelete({name: req.params.name, email: req.params.email, contact: req.params.contact}).then((teacher) => {
     TeacherModel.find().then((teachers) => {
       if (teachers.length === 0) {
@@ -351,11 +369,11 @@ app.get('/admin/teacher/delete/:name/:email/:contact', (req, res) => {
 });
 
 // give the update form
-app.get('/admin/teacher/update', (req, res) => {
+app.get('/admin/teacher/update', ensureAuthenticated, (req, res) => {
   res.render('teacherupdateform.hbs', {name: 'Admin'});
 });
 
-app.post('/admin/teacher/modify', upload.single(), (req, res) => {
+app.post('/admin/teacher/modify', ensureAuthenticated, upload.single(), (req, res) => {
   let old_data = {name: req.body.old_name, email: req.body.old_email, contact: req.body.old_contact};
   let new_data = {name: req.body.new_name, email: req.body.new_email, contact: req.body.new_contact};
   TeacherModel.findOneAndUpdate(old_data, new_data).then((teacher) => {
@@ -374,15 +392,15 @@ app.post('/admin/teacher/modify', upload.single(), (req, res) => {
 });
 
 // ------------------------------ Class Section -------------------------------------
-app.get('/admin/class', (req, res) => {
+app.get('/admin/class', ensureAuthenticated, (req, res) => {
   res.render('adminclass.hbs', {name: 'Admin'});
 });
 
-app.get('/admin/class/add', (req, res) => {
+app.get('/admin/class/add', ensureAuthenticated, (req, res) => {
   res.render('adminclassadd.hbs', {name: 'Admin'});
 });
 
-app.post('/admin/class/store', upload.single(), (req, res) => {
+app.post('/admin/class/store', ensureAuthenticated, upload.single(), (req, res) => {
   let _cls = req.body.class;
   let year = req.body.year;
   let no_of_section = Number(req.body.no_of_section);
@@ -407,13 +425,13 @@ app.post('/admin/class/store', upload.single(), (req, res) => {
   });
 });
 
-app.get('/admin/class/remove', (req, res) => {
+app.get('/admin/class/remove', ensureAuthenticated, (req, res) => {
   res.render('adminclassremove.hbs', {name: 'Admin'});
 });
 
 // it will remove student from class and mark database. it will not remve student from student database.
 // because after one class he/she will jump to go class.
-app.post('/admin/class/delete', upload.single(), (req, res) => {
+app.post('/admin/class/delete', ensureAuthenticated, upload.single(), (req, res) => {
   ClassModel.findOneAndDelete({year: req.body.year, class: req.body.class}).then((cls) => {
     if (!cls) {
       res.render('adminclassremove.hbs', {name: 'Admin', msg: 'Class not found'});
@@ -432,12 +450,12 @@ app.post('/admin/class/delete', upload.single(), (req, res) => {
   });
 });
 
-app.get('/admin/class/addstudent', (req, res) => {
+app.get('/admin/class/addstudent', ensureAuthenticated, (req, res) => {
   res.render('adminclassaddstudent.hbs', {name: 'Admin'});
 });
 
 // store student in the database
-app.post('/admin/class/storestudent', upload.single(), (req, res) => {
+app.post('/admin/class/storestudent', ensureAuthenticated, upload.single(), (req, res) => {
   let cls = req.body.class;
   let section = req.body.section;
   let stud = {studentid: req.body.id, rollno: req.body.rollno};
@@ -488,12 +506,12 @@ app.post('/admin/class/storestudent', upload.single(), (req, res) => {
     });
 });
 
-app.get('/admin/class/removestudent', (req, res) => {
+app.get('/admin/class/removestudent', ensureAuthenticated, (req, res) => {
   res.render('adminclassremovestudent.hbs', {name: 'Admin'});
 });
 
 // delete student from class
-app.post('/admin/class/deletestudent', upload.single(), (req, res) => {
+app.post('/admin/class/deletestudent', ensureAuthenticated, upload.single(), (req, res) => {
   let cls = req.body.class;
   let section = req.body.section;
   let rollno = req.body.rollno;
@@ -527,11 +545,11 @@ app.post('/admin/class/deletestudent', upload.single(), (req, res) => {
   });
 });
 
-app.get('/admin/class/search', (req, res) => {
+app.get('/admin/class/search', ensureAuthenticated, (req, res) => {
   res.render('adminclasssearch.hbs', {name: 'Admin'});
 });
 
-app.post('/admin/class/showlist', upload.single(), (req, res) => {
+app.post('/admin/class/showlist', ensureAuthenticated, upload.single(), (req, res) => {
   let cls = req.body.class;
   ClassModel.findOne({class: cls}).then((clsobj) => {
     if (!clsobj) {
@@ -555,16 +573,16 @@ app.post('/admin/class/showlist', upload.single(), (req, res) => {
 
 // ------------------------------ Mark Section --------------------------------------
 
-app.get('/admin/mark', (req, res) => {
+app.get('/admin/mark', ensureAuthenticated, (req, res) => {
   res.render('adminmark.hbs', {name: 'Admin'});
 });
 
 // it will give the exam and class radio buttons
-app.get('/admin/mark/examtype', (req, res) => {
+app.get('/admin/mark/examtype', ensureAuthenticated, (req, res) => {
   res.render('adminmarkexamtype.hbs', {name: 'Admin'});
 });
 
-app.post('/admin/mark/add', upload.single(), (req, res) => {
+app.post('/admin/mark/add', ensureAuthenticated, upload.single(), (req, res) => {
   let cls = req.body.class;
   let exmtype = req.body.exm;
   SubjectModel.findOne({class: cls}).then((subjects) => {
@@ -602,7 +620,7 @@ function createMarkObj(req, res, next) {
   });
 }
 
-app.post('/admin/mark/store', upload.single(), createMarkObj, (req, res) => {
+app.post('/admin/mark/store', ensureAuthenticated, upload.single(), createMarkObj, (req, res) => {
   let exm = req.body.exm;
   let cls = req.body.cls;
   let studentid = req.body.id;
@@ -635,12 +653,12 @@ app.post('/admin/mark/store', upload.single(), createMarkObj, (req, res) => {
 });
 
 // give the class and mark list form
-app.get('/admin/mark/update', (req, res) => {
+app.get('/admin/mark/update', ensureAuthenticated, (req, res) => {
   res.render('adminmarkupdateform.hbs', {name: 'Admin'});
 });
 
 // give the update form of different subjects with mark
-app.post('/admin/mark/updatemarkform', upload.single(), (req, res) => {
+app.post('/admin/mark/updatemarkform', ensureAuthenticated, upload.single(), (req, res) => {
   let cls = req.body.class;
   let exm = req.body.exm;
   let studentid = req.body.id;
@@ -658,7 +676,7 @@ app.post('/admin/mark/updatemarkform', upload.single(), (req, res) => {
 
 // it will modify the mark. it is similar to add mark rout
 // it will create another mark object nad replace the old one with new one
-app.post('/admin/mark/modify', upload.single(), createMarkObj, (req, res) => {
+app.post('/admin/mark/modify', ensureAuthenticated, upload.single(), createMarkObj, (req, res) => {
   let exm = req.body.exm;
   let cls = req.body.cls;
   let studentid = req.body.id;
@@ -693,16 +711,16 @@ app.post('/admin/mark/modify', upload.single(), createMarkObj, (req, res) => {
 
 // ------------------------------ Notice Section ------------------------------------
 
-app.get('/admin/notice', (req, res) => {
+app.get('/admin/notice', ensureAuthenticated, (req, res) => {
   res.render('adminnotice.hbs', {name: 'Admin'});
 });
 
 // give the notice add form
-app.get('/admin/notice/add', (req, res) => {
+app.get('/admin/notice/add', ensureAuthenticated, (req, res) => {
   res.render('adminnoticeadd.hbs', {name: 'Admin'});
 });
 //store notice in database
-app.post('/admin/notice/store', upload.single(), (req, res) => {
+app.post('/admin/notice/store', ensureAuthenticated, upload.single(), (req, res) => {
   new NoticeModel({noticeno: req.body.noticeno, date: req.body.date, notice: req.body.notice}).save().then((notice) => {
     res.render('adminnoticeadd.hbs', {name: 'Admin', msg: 'notice added successfully'});
   }, (err) => {
@@ -711,7 +729,7 @@ app.post('/admin/notice/store', upload.single(), (req, res) => {
 });
 
 // send the page having all notice with remmove button
-app.get('/admin/notice/remove', (req, res) => {
+app.get('/admin/notice/remove', ensureAuthenticated, (req, res) => {
   NoticeModel.find().then((notices) => {
     if (notices.length === 0) {
       res.render('adminnoticeremove.hbs', {name: 'Admin', notices, msg: 'No Notice Found'});
@@ -724,7 +742,7 @@ app.get('/admin/notice/remove', (req, res) => {
 });
 
 // delete the message from database and show updated notice list
-app.get('/admin/notice/delete/:noticeno', upload.single(), (req, res) => {
+app.get('/admin/notice/delete/:noticeno', ensureAuthenticated, upload.single(), (req, res) => {
   NoticeModel.findOneAndDelete({noticeno: req.params.noticeno}).then((notice) => {
     NoticeModel.find().then((notices) => {
       if (notices.length === 0) {
@@ -738,4 +756,12 @@ app.get('/admin/notice/delete/:noticeno', upload.single(), (req, res) => {
   }, (err) => {
     res.render('adminnoticeremove.hbs', {name: 'Admin', msg: 'some error occured'});
   });
+});
+
+
+
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => {
+  console.log(`Server started at port ${port}`)
 });
