@@ -93,7 +93,7 @@ const markSchema = new mongoose.Schema({
         default: 0
       }
     },
-    monyhly4: {
+    monthly4: {
       marks: [{
         subject: {
           type: String,

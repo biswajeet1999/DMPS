@@ -200,7 +200,6 @@ app.get('/student/notice', ensureAuthenticated, (req, res) => {
   });
 });
 
-
 app.get('/student/teacher', ensureAuthenticated, (req, res) => {
   TeacherModel.find({}).then((teachers) => {
     if (teachers.length === 0) {
@@ -213,6 +212,34 @@ app.get('/student/teacher', ensureAuthenticated, (req, res) => {
   });
 });
 
+app.get('/student/marks', ensureAuthenticated, (req, res) => {
+  let {studentid} = req.user;
+  //find student marks
+  MarkModel.findOne({studentid}).then((marks) => {
+    if (!marks) {
+      return res.render('studentmark.hbs', {name: req.user.name, msg: 'Student not exists in any class'});
+    } else {
+      // find subject list
+      SubjectModel.findOne({class: marks.class}).then((subjects) => {      
+        // find class in which the student exists
+        ClassModel.findOne({class: subjects.class, 'section.students.studentid': marks.studentid}).then((cls) => {
+          // find student rollno
+          for (let i=0; i < cls.section.length; i++) {
+            for (let j=0; j < cls.section[i].students.length; j++) {
+              if (cls.section[i].students[j].studentid === studentid) {
+                return res.render('studentmark.hbs', {name: req.user.name, marks, subjects, rollno: cls.section[i].students[j].rollno});
+              }
+            }
+          }    
+        }, (err) => {
+          res.render('studentmark.hbs', {name: req.user.name, msg: 'unable to find student rollno'});
+        });
+      });
+    }
+  }).catch((err) => {
+    res.render('studentmark.hbs', {name: req.user.name, msg: 'unable to fetch marks.'});
+  });
+});
 
 // =================================================================================================================================
 // ================================================ A D M I N   P E N A L ==========================================================
@@ -226,7 +253,7 @@ app.get('/admin/home', ensureAuthenticated, (req, res) => {
 
 app.get('/admin/logout', ensureAuthenticated, (req, res) => {
   req.logout();
-  res.redirect('admin/login');
+  res.redirect('/admin/login');
 });
 
 // ----------------------------- Student Section ------------------------------------
@@ -250,14 +277,15 @@ app.post('/admin/student/store', ensureAuthenticated, upload.single(), (req, res
   let studentid = name + phone.slice(phone.length-3, phone.length);
   let password = dateOfJoin + phone.slice(phone.length-3, phone.length);
 
-  let student = new StudentModel({name, father, mother, dateOfJoin, dateOfPassout, address, phone, adhar, studentid, password});
+  let student = {name, father, mother, dateOfJoin, dateOfPassout, address, phone, adhar, studentid, password};
   StudentModel.findOne(student).then((stud) => {
     if (stud) {
-      res.render("adminstudentadd.hbs", {name: 'Admin', msg:'Duplicate Student not Allowed'});
+      return res.render("adminstudentadd.hbs", {name: 'Admin', msg:'Duplicate Student'});
     } else {
-      student.save().then((student) => {
+      new StudentModel(student).save().then((student) => {
         res.render("adminstudentadd.hbs", {name: 'Admin', account:{studentid, password}});
       }, (err) => {
+        console.log(err)
         res.render("adminstudentadd.hbs", {name: 'Admin', msg:'Unable to store student'});
       });
     }
@@ -667,7 +695,7 @@ app.post('/admin/mark/updatemarkform', ensureAuthenticated, upload.single(), (re
       res.render('adminmarkupdateform.hbs', {name: 'Admin', msg: 'No student found in the class'});
     } else {
       let marks = student.marks[exm].marks;
-      res.render('markupdateform.hbs', {name: 'Admin', marks, cls, exm, id});
+      res.render('markupdateform.hbs', {name: 'Admin', marks, cls, exm, id: studentid});
     }
   }, (err) => {
     res.render('adminmarkupdateform.hbs', {name: 'Admin', msg: 'Unable to proceed'});

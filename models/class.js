@@ -42,7 +42,7 @@ const classSchema = new mongoose.Schema({
         minlength: 1,
         unique: true
       },
-      id: {
+      studentid: {
         type: String,
         required: true,
         unique: true

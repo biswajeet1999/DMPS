@@ -145,7 +145,7 @@
         </script>
         <div class="pop-up z-depth-5">
           <div class="row col s12 center">
-            <h2 class="pink-text">Unable to create Student</h2>
+            <h4 class="">{{msg}}</h4>
             <a href ='/admin/student/add' class="waves-effect waves-light btn" style="margin-right: 10%; margin-top:50px;">ok</a>
           </div>
         </div>
@@ -157,8 +157,8 @@
         </script>
         <div class="pop-up z-depth-5">
           <div class="row col s12 center">
-            <h2 class="pink-text">Student created</h2>
-            <p style="font-size: 20px">ID: {{account.id}}</p>
+            <h4 class="">Student created</h4>
+            <p style="font-size: 20px">ID: {{account.studentid}}</p>
             <p style="font-size: 20px">PASSWORD: {{account.password}}</p>
             <a href ='/admin/student/add' class="waves-effect waves-light btn">ok</a>
           </div>

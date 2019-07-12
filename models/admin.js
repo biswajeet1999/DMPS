@@ -22,17 +22,7 @@ const adminSchema = new mongoose.Schema({
     required: true,
     minlength: 1,
     trim: true
-  },
-  tokens: [{
-    access: {
-      type: String,
-      required: true,
-    },
-    token: {
-      type: String,
-      require: true
-    }
-  }]
+  }
 });
 
 const AdminModel = mongoose.model('admin', adminSchema);
