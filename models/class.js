@@ -2,9 +2,6 @@ const mongoose = require('mongoose');
 
 const {StudentModel} = require('./students');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/dmps', { useNewUrlParser:true });
-
 // it will store the class details along with section
 // there is section array which contains individual section names 
 // and for each section having student array.
@@ -25,7 +22,8 @@ const classSchema = new mongoose.Schema({
     required: true,
     trim: true,
     minlength: 1,
-    maxlength: 3
+    maxlength: 3,
+    unique: true
   },
   section: [{
     sectionname: {
@@ -41,7 +39,8 @@ const classSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        minlength: 1
+        minlength: 1,
+        unique: true
       },
       id: {
         type: String,
@@ -52,38 +51,38 @@ const classSchema = new mongoose.Schema({
   }]
 });
 
-const classModel = mongoose.model('Class', classSchema);
+const ClassModel = mongoose.model('Class', classSchema);
 
-const name = 'Biswajeet'
-const rollno = 1
-const id = "2019890"
-const year = '2019'
-const sec = 'A'
-const classs = '8'
+// const name = 'Biswajeet'
+// const rollno = 1
+// const id = "2019890"
+// const year = '2019'
+// const sec = 'A'
+// const classs = '8'
 
-StudentModel.findOne({id, name}).then((obj)=>{
-  if (!obj) {
-    console.log('Student not found');
-  } else{
-    classModel.findOne({year, class: classs, 'section.sectionname': sec}).then((obj) => {
-      if(!obj){
-        return console.log('class not found');
-      }
-      for(let i=0; i< obj.section.length; i++) {
-        if(obj.section[i].sectionname === sec) {
-          obj.section[i].students.push({name, rollno, id});
-          break;
-        }
-      }
-      classModel(obj).save().then((obj)=>{console.log('saved'), (err)=> {err}})
+// StudentModel.findOne({id, name}).then((obj)=>{
+//   if (!obj) {
+//     console.log('Student not found');
+//   } else{
+//     classModel.findOne({year, class: classs, 'section.sectionname': sec}).then((obj) => {
+//       if(!obj){
+//         return console.log('class not found');
+//       }
+//       for(let i=0; i< obj.section.length; i++) {
+//         if(obj.section[i].sectionname === sec) {
+//           obj.section[i].students.push({name, rollno, id});
+//           break;
+//         }
+//       }
+//       classModel(obj).save().then((obj)=>{console.log('saved'), (err)=> {err}})
 
-    }, (err) => {
-      console.log(err);
-    });
-  }
-}, (err) => {
-  console.log(err);
-});
+//     }, (err) => {
+//       console.log(err);
+//     });
+//   }
+// }, (err) => {
+//   console.log(err);
+// });
 
 
 
@@ -123,4 +122,4 @@ StudentModel.findOne({id, name}).then((obj)=>{
 //   }]
 // }]
 
-module.exports = { classModel }
+module.exports = { ClassModel }

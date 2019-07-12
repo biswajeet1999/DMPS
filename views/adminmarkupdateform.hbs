@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>DMPS</title>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!--j-Query-->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <!--local css-->
+    
+
+</head>
+<body>
+    <!--header-->
+    <header>
+        <!--navbar-->
+        <nav class="blue">
+          <div class="container">
+            <div class="nav-wrapper">
+                <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <a href="#" class="brand-logo">DMPS</a>
+                <ul id="nav-mobile" class="left hide-on-med-and-down right">
+                  <li><a href="/admin/home">Home</a></li>
+                  <li><a href="/admin/notice">Notice</a></li>
+                  <li><a href="/admin/teacher">Teacher</a></li>
+                  <li><a href="/admin/student">Student</a></li>
+                  <li><a href="/admin/mark">Mark</a></li>
+                  <li><a href="/admin/class">Class</a></li>
+                  <li><a href="/admin/logout">logout</a></li>
+                  <li><a href="#">{{name}}</a></li>
+                </ul>              
+                <!--sidebar menu-->
+                <ul class="sidenav" id="mobile-demo">
+                    <li><a href="#">{{name}}</a></li>
+                    <li><a href="/admin/home" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Home</a></li>
+                    <li><a href="/admin/notice" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Notice</a></li>
+                    <li><a href="/admin/teacher" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Teacher</a></li>
+                    <li><a href="/admin/student" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Student</a></li>
+                    <li><a href="/admin/mark" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Mark</a></li>
+                    <li><a href="/admin/class" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Class</a></li>
+                    <li><a href="/admin/logout" class="btn waves-effect light-blue accent-3 white-text z-depth-4">logout</a></li>
+                  </ul>
+                </div>              
+            </div>
+        </nav>
+    </header> 
+
+    {{!-- body --}}
+    <section style="padding-top: 1%">
+      <div class="container">
+        <div class="row">
+          <div class="col s12 center">
+            <div class="card-panel z-depth-4">
+              <form action='/admin/mark/updatemarkform' method="POST" enctype="multipart/form-data">
+                <div class="row">
+                  <div class="input-field col s12 m8 offset-m2">
+                    <input id="id" type="text" class="validate" name="id">
+                    <label for="id">Student ID</label>
+                  </div>
+                </div>
+                {{!-- class list --}}
+                <h4 class="row blue-text">CLASS</h4>
+                <div class="row">
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="class" type="radio" value="lkg" checked/>
+                            <span>LKG</span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="class" type="radio" value="ukg"/>
+                            <span>UKG</span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="class" type="radio" value="1"/>
+                            <span>1<sup>st</sup></span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="class" type="radio" value="2"/>
+                            <span>2<sup>nd</sup></span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="class" type="radio" value="3"/>
+                            <span>3<sup>rd</sup></span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="class" type="radio" value="4"/>
+                            <span>4<sup>th</sup></span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="class" type="radio" value="5"/>
+                            <span>5<sup>th</sup></span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="class" type="radio" value="6"/>
+                            <span>6<sup>th</sup></span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="class" type="radio" value="7"/>
+                            <span>7<sup>th</sup></span>
+                          </label>
+                        </p>
+                      </div>
+                </div>
+
+              {{!-- Exam type --}}
+              <h4 class="row blue-text">Exam Type</h4>
+              <div class="row">
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="exm" type="radio" value="monthly1" checked/>
+                            <span>Monthly-1</span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="exm" type="radio" value="monthly2"/>
+                            <span>Monthly-2</span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="exm" type="radio" value="monthly3"/>
+                            <span>Monthly-3</span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="exm" type="radio" value="monthly4"/>
+                            <span>Monthly-4</span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="exm" type="radio" value="halfyearly"/>
+                            <span>Half Yearly</span>
+                          </label>
+                        </p>
+                      </div>
+
+                      <div class="col s12 m3">
+                        <p>
+                          <label>
+                            <input name="exm" type="radio" value="annual"/>
+                            <span>Annual</span>
+                          </label>
+                        </p>
+                      </div>
+              </div>
+
+                  <button class="btn waves-effect waves-light blue" type="submit" name="action">Submit</button>
+              </form>
+              <div class="row red-text" style="margin-top:1%; margin-bottom: 0px;">{{msg}}</div>
+            </div>
+          </div>
+        </div>     
+      </div>           
+    </section>
+    
+    <!--materialize init-->
+    <script>
+      
+      $('document').ready(() => {
+        // sidebar init
+        $('.sidenav').sidenav();
+      });
+      
+    </script>
+    
+    <!--JavaScript at end of body for optimized loading-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>

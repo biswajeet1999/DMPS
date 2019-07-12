@@ -17,7 +17,7 @@ const studentSchema = new mongoose.Schema({
     trim: true,
     minlength: 1
   },
-  id: {
+  studentid: {
     type: String,
     required: true,
     minlength: 1,
@@ -62,20 +62,18 @@ const studentSchema = new mongoose.Schema({
     trim: true,
     minlength: 10
   },
+  adhar: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 12,
+    maxlength: 12,
+    unique: true
+  },
   password: {
     type: String,
     required: true
-  },
-  tokens: [{
-    access: {
-      type: String,
-      required: true
-    },
-    token: {
-      type: String,
-      required: true
-    }
-  }]  
+  }
 });
 
 const StudentModel = mongoose.model('Students', studentSchema);

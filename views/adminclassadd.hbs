@@ -29,7 +29,7 @@
                   <li><a href="/admin/home">Home</a></li>
                   <li><a href="/admin/notice">Notice</a></li>
                   <li><a href="/admin/teacher">Teacher</a></li>
-                  <li><a href="#">Student</a></li>
+                  <li><a href="/admin/student">Student</a></li>
                   <li><a href="/admin/mark">Mark</a></li>
                   <li><a href="/admin/class">Class</a></li>
                   <li><a href="/admin/logout">logout</a></li>
@@ -41,7 +41,7 @@
                     <li><a href="/admin/home" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Home</a></li>
                     <li><a href="/admin/notice" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Notice</a></li>
                     <li><a href="/admin/teacher" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Teacher</a></li>
-                    <li><a href="#" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Student</a></li>
+                    <li><a href="/admin/student" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Student</a></li>
                     <li><a href="/admin/mark" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Mark</a></li>
                     <li><a href="/admin/class" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Class</a></li>
                     <li><a href="/admin/logout" class="btn waves-effect light-blue accent-3 white-text z-depth-4">logout</a></li>
@@ -54,31 +54,39 @@
     {{!-- body --}}
     <section style="padding-top: 2%">
       <div class="container">
-        <div class="row" id="add">
-            <div class="col s12 center">
-              <a href="/admin/student/add" class="btn-floating btn-large waves-effect waves-light green pulse"><i class="material-icons">add</i></a>
+        <div class="row">
+          <div class="col s12 m5">
+            <div class="card-panel">
+              
+              <form action="/admin/class/store" method="POST" enctype="multipart/form-data">
+                  <div class="row">
+                    <div class="input-field col s6">
+                      <input id="year" type="text" class="validate" name="year">
+                      <label for="year">Year</label>
+                    </div>
+                    <div class="input-field col s6">
+                      <input id="class" type="text" class="validate" name="class">
+                      <label for="class">Class</label>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="input-field col s6">
+                      <input id="no_of_section" type="text" class="validate" name="no_of_section">
+                      <label for="no_of_section">No Of Section</label>
+                    </div>
+                  </div>
+
+                  <button class="btn waves-effect waves-light right blue" type="submit" name="action" style="margin-top: -10%">create
+                    <i class="material-icons right">create</i>
+                  </button>
+              </form>
+
             </div>
-            <div class="col s12 center" style="margin: 2% auto 4%">Add Student</div>
-        </div>
-        <div class="row" id="remove">
-            <div class="col s12 center">
-              <a href="/admin/student/remove" class="btn-floating btn-large waves-effect waves-light red pulse"><i class="material-icons">delete</i></a>
-            </div>
-            <div class="col s12 center" style="margin: 2% auto 4%">Remove Student</div>
-        </div>
-        <div class="row" id="update">
-            <div class="col s12 center">
-              <a href="/admin/student/update" class="btn-floating btn-large waves-effect waves-light orange pulse"><i class="material-icons">update</i></a>
-            </div>
-            <div class="col s12 center" style="margin: 2% auto 4%">Update Student</div>
-        </div>
-        <div class="row" id="removebatch">
-            <div class="col s12 center">
-              <a href="/admin/student/removebatch" class="btn-floating btn-large waves-effect waves-light red pulse"><i class="material-icons">delete</i></a>
-            </div>
-            <div class="col s12 center" style="margin: 2% auto 4%">Remove Batch</div>
+          </div>
         </div>
       </div>
+      <div class="container row" style="padding-left: 5%">{{msg}}</div>
     </section>
     
     <!--materialize init-->

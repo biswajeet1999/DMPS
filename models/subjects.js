@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/dmps', { useNewUrlParser:true });
+// mongoose.Promise = global.Promise;
+// mongoose.connect('mongodb://localhost:27017/dmps', { useNewUrlParser:true });
 
 // max mark store max mark for each subject of annual exam
 // max mark for annual and half-yearly exams are same
@@ -13,7 +13,7 @@ const subjectSchema = new mongoose.Schema({
     required: true,
     trim: true,
     minlength: 1,
-    maxlength: 1, 
+    maxlength: 3, 
   },
   subjects: [{
     name:{
@@ -21,7 +21,6 @@ const subjectSchema = new mongoose.Schema({
       required: true,
       trim: true,
       minlength: 1,
-      unique: true
     },
     totalexams: {
       type: Number,
@@ -41,12 +40,69 @@ const subjectSchema = new mongoose.Schema({
 const SubjectModel = mongoose.model('subjects', subjectSchema);
 
 // let subject = new SubjectModel({
-//   class: '8',
-//   subjects: [
-//     {name: 'phy', totalexams: 6, maxmark: 100},
-//     {name: 'chm', totalexams: 6, maxmark: 100},
-//     {name: 'mth', totalexams: 6, maxmark: 100}
-//   ]
+//   "class" : "7",
+//     "subjects" : [ 
+//         {
+//             "name" : "mathstep",
+//             "totalexams" : 6,
+//             "maxmark" : 100
+//         }, 
+//         {
+//             "name" : "english",
+//             "totalexams" : 6,
+//             "maxmark" : 100
+//         }, 
+//         {
+//             "name" : "mil",
+//             "totalexams" : 6,
+//             "maxmark" : 100
+//         }, 
+//         {
+//             "name" : "history",
+//             "totalexams" : 6,
+//             "maxmark" : 50
+//         }, 
+//         {
+//             "name" : "geography",
+//             "totalexams" : 6,
+//             "maxmark" : 50
+//         }, 
+//         {
+//             "name" : "sanskrit",
+//             "totalexams" : 6,
+//             "maxmark" : 50
+//         }, 
+//         {
+//             "name" : "story",
+//             "totalexams" : 6,
+//             "maxmark" : 50
+//         }, 
+//         {
+//             "name" : "drawing",
+//             "totalexams" : 6,
+//             "maxmark" : 50
+//         }, 
+//         {
+//             "name" : "science",
+//             "totalexams" : 6,
+//             "maxmark" : 100
+//         }, 
+//         {
+//             "name" : "matho",
+//             "totalexams" : 6,
+//             "maxmark" : 100
+//         }, 
+//         {
+//             "name" : "hindi",
+//             "totalexams" : 6,
+//             "maxmark" : 50
+//         }, 
+//         {
+//             "name" : "gk",
+//             "totalexams" : 6,
+//             "maxmark" : 100
+//         }
+//     ]
 // });
 
 // subject.save().then((obj)=>{}, (err)=>{console.log(err)})

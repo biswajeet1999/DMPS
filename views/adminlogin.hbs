@@ -51,28 +51,28 @@ style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-w
             <div class="col s12 m8 offset-m2">
               <div class="card-panel white z-depth-5">
 
-                <form action="/Admin/login" method="POST">
+                <form action="/admin/signin" method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="input-field col s8 offset-s2">
-                          <input id="email" type="email" class="validate">
-                          <label for="email"><i class="material-icons left">person</i>Admin ID</label>
+                          <input id="id" type="text" class="validate" name="id">
+                          <label for="id"><i class="material-icons left">person</i>Admin ID</label>
                         </div>
                     </div>
                     
                     <div class="row">
                         <div class="input-field col s8 offset-s2">
-                          <input id="password" type="password" class="validate">
+                          <input id="password" type="password" class="validate" name="password">
                           <label for="password"><i class="material-icons left">lock</i>Password</label>
                         </div>
                     </div>
-                    <!--complete the submit function-->
-                    <div class="btn submit pink z-depth-4 waves-effect waves-blue" style="margin-left:40%">
+                    
+                    <button class="btn pink z-depth-4 waves-effect waves-blue" type="submit" name="action" style="margin-left:40%">
                       Login
                       <i class="material-icons right">send</i>
-                    </div>
+                    </button>
 
                 </form>
-                
+                <div class="row center-align red-text" style="margin-top: 2%;">{{msg}}</div>
               </div>
             </div>
           </div>

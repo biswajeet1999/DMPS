@@ -11,10 +11,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <!--j-Query-->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    {{!-- google fonts --}}
+    <link href="https://fonts.googleapis.com/css?family=Tangerine:700&display=swap" rel="stylesheet">
 
     <!--local css-->
     <link rel="stylesheet" href="./style.css">
+    <style>
+      #feedback {
+        position: fixed;
+        z-index: 9999;
+        top: 500px;
+        right: -50px;
+        transform: rotateZ(-90deg);
+        background: #4a148c;
+        border-top-right-radius: 20px;
+      }
+      #request {
+        position: fixed;
+        z-index: 9999;
+        top: 300px;
+        right: -63px;
+        transform: rotateZ(-90deg);
+        background: #3e2723;
+        border-top-right-radius: 20px;
+      }
+      .joinus {
+        width: 100%;
+        height: 200px;
+        background: #3f51b5;
+      }
+      .quote {
+        width: 100%;
+        min-height: 100px;
+        background: #ff9800;
+      }
+      .row {
+        margin: 0px !important;
+      }
 
+    </style>
 </head>
 <body>
     <!--header-->
@@ -77,6 +112,21 @@ style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-w
 
           </div>
     </header>  
+
+    <section>
+      <a class="waves-effect waves-light btn" id="feedback"><i class="material-icons left">feedback</i>Feedback</a>
+      <a class="waves-effect waves-light btn" id="request">Request For Join</a>
+      
+    </section>
+
+    <section>
+      <div class="row" style="min-height:100px; overflow: auto; background: #ff9800;">
+        <div class="col s12 center quote">
+          <span style="font-size: 70px; font-family: 'Tangerine', cursive; color: #00695c; text-shadow: 2px 2px 8px gray" >Proud of our past, belief in our future!</span>
+        </div>
+      </div>
+      <div class="joinus"></div>
+    </section>
     
     <!--materialize init-->
     <script>
