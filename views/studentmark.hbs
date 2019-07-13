@@ -65,8 +65,9 @@
         <div class="row">
           <div class="col m12">
             <h4>Name: &nbsp;{{name}}</h4>
-            <h6>Class:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{subjects.class}}</h6>
-            <p>Roll No: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{rollno}}</p>
+            <h6>Class: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{subjects.class}}</h6>
+            <p>Section: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{section}}</p>
+            <p>Roll No: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{rollno}}</p>
           </div>
         </div>
       </div>
@@ -88,7 +89,15 @@
                     <th>Percentage</th>
                 </tr>
               </thead>
-              <tbody> 
+              <tbody>
+                <tr style="color: red">
+                  <th class="center-align">Marks</th>
+                  {{#each subjects.subjects}}
+                    <td>{{getMonthlyMark maxmark}}</td>
+                  {{/each}}
+                  <td>{{getMonthlyTotalMark subjects}}</td>
+                  <td>---</td>
+                </tr> 
                 <tr>
                   <th class="center-align">Monthly 1</th>
                   {{#each marks.marks.monthly1.marks}}
@@ -121,6 +130,14 @@
                   <td>{{marks.marks.monthly4.totalmark}}</td>
                   <td>{{marks.marks.monthly4.percentage}}</td>
                 </tr>
+                <tr style="color: red">
+                  <th class="center-align">Marks</th>
+                  {{#each subjects.subjects}}
+                    <td style="border-top: 1px solid red">{{maxmark}}</td>
+                  {{/each}}
+                  <td style="border-top: 1px solid red">{{getAnnualTotalMark subjects}}</td>
+                  <td style="border-top: 1px solid red">---</td>
+                </tr> 
                 <tr>
                   <th class="center-align">Halfyearly</th>
                   {{#each marks.marks.halfyearly.marks}}

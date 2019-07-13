@@ -1,12 +1,12 @@
 const express = require("express");
-const multer = require("multer")
+const multer = require("multer");
 const hbs = require("hbs");
 const path = require("path");
-const jwt = require('jsonwebtoken');
 const passport = require("passport");
-const authtoken = require('passport-auth-token');
 const Strategy = require('passport-local').Strategy;
 const cookieSession = require('cookie-session');
+const fs = require('fs');
+const json2csv = require('json2csv').parse;
 
 // local modules
 const {mongoose} = require('./db/mongoose');
@@ -22,11 +22,28 @@ const app = express();
 
 // setup static routs
 app.set('view engine', 'hbs');
-app.use(express.static(path.join(__dirname,"/public/css")));
-app.use(express.static(path.join(__dirname,"/public/images")));
+app.use(express.static(path.join(__dirname, "/public/css")));
+app.use(express.static(path.join(__dirname, "/public/images")));
 app.use(express.static(path.join(__dirname, '/public/upload')));
+app.use(express.static(path.join(__dirname, '/public/downloads')));
 
+// hbs helpers
 hbs.registerHelper('getIndex', (index) => index+1);
+hbs.registerHelper('getMonthlyMark', (mark) => mark/4);
+hbs.registerHelper('getAnnualTotalMark', (marks) => {
+  let total = 0;
+  for (let i=0; i < marks.subjects.length; i++) {
+    total += marks.subjects[i].maxmark;
+  }
+  return total;
+});
+hbs.registerHelper('getMonthlyTotalMark', (marks) => {
+  let total = 0;
+  for (let i=0; i < marks.subjects.length; i++) {
+    total += marks.subjects[i].maxmark / 4;
+  }
+  return total;
+});
 
 // setup multer upload path
 const storage = multer.diskStorage({
@@ -180,7 +197,7 @@ app.post('/admin/signin', upload.single(), passport.authenticate('Admin', {
 
 // student routs after login
 app.get('/student/home', ensureAuthenticated, (req, res) => {
-  res.render('studenthome.hbs', {name:'Biswajeet'});
+  res.render('studenthome.hbs', {name: req.user.name});
 });
 
 app.get('/student/logout', ensureAuthenticated, (req, res) => {
@@ -191,24 +208,24 @@ app.get('/student/logout', ensureAuthenticated, (req, res) => {
 app.get('/student/notice', ensureAuthenticated, (req, res) => {
   NoticeModel.find({}).then((notices) => {
     if (notices.length === 0) {
-      res.status(200).render('studentnotice.hbs', {name: 'Biswajeet',msg: "No Notice"});
+      res.status(200).render('studentnotice.hbs', {name: req.user.name,msg: "No Notice"});
     } else {
-      res.status(200).render('studentnotice.hbs', {name: 'Biswajeet', notices});
+      res.status(200).render('studentnotice.hbs', {name: req.user.name, notices});
     }
   }, (err) => {
-    res.status(400).render('studentnotice.hbs', {name: 'Biswajeet', msg: "Somthing went wrong..."});
+    res.status(400).render('studentnotice.hbs', {name: req.user.name, msg: "Somthing went wrong..."});
   });
 });
 
 app.get('/student/teacher', ensureAuthenticated, (req, res) => {
   TeacherModel.find({}).then((teachers) => {
     if (teachers.length === 0) {
-      res.status(200).render('studentteacher.hbs', {name: 'Biswajeet', msg: "No Teacher found:("});
+      res.status(200).render('studentteacher.hbs', {name: req.user.name, msg: "No Teacher found:("});
     } else {
-      res.status(200).render('studentteacher.hbs', {name: 'Biswajeet', teachers});
+      res.status(200).render('studentteacher.hbs', {name: req.user.name, teachers});
     }
   }, (err) => {
-    res.status(400).render('studentteacher.hbs', {name: 'Biswajeet', msg: "Somthing went wrong..."});
+    res.status(400).render('studentteacher.hbs', {name: req.user.name, msg: "Somthing went wrong..."});
   });
 });
 
@@ -227,7 +244,7 @@ app.get('/student/marks', ensureAuthenticated, (req, res) => {
           for (let i=0; i < cls.section.length; i++) {
             for (let j=0; j < cls.section[i].students.length; j++) {
               if (cls.section[i].students[j].studentid === studentid) {
-                return res.render('studentmark.hbs', {name: req.user.name, marks, subjects, rollno: cls.section[i].students[j].rollno});
+                return res.render('studentmark.hbs', {name: req.user.name, marks, subjects, section: cls.section[i].sectionname, rollno: cls.section[i].students[j].rollno});
               }
             }
           }    
@@ -248,7 +265,7 @@ app.get('/student/marks', ensureAuthenticated, (req, res) => {
 
 // admin routs after login
 app.get('/admin/home', ensureAuthenticated, (req, res) => {
-  res.render('adminhome.hbs', {name: 'Admin'});
+  res.render('adminhome.hbs', {name: req.user.name});
 });
 
 app.get('/admin/logout', ensureAuthenticated, (req, res) => {
@@ -258,11 +275,11 @@ app.get('/admin/logout', ensureAuthenticated, (req, res) => {
 
 // ----------------------------- Student Section ------------------------------------
 app.get('/admin/student', ensureAuthenticated, (req, res) => {
-  res.render('adminstudent.hbs', {name: 'Admin'});
+  res.render('adminstudent.hbs', {name: req.user.name});
 });
 
 app.get('/admin/student/add', ensureAuthenticated, (req, res) => {
-  res.render('adminstudentadd.hbs');
+  res.render('adminstudentadd.hbs', {name: req.user.name});
 });
 
 app.post('/admin/student/store', ensureAuthenticated, upload.single(), (req, res) => {
@@ -280,22 +297,22 @@ app.post('/admin/student/store', ensureAuthenticated, upload.single(), (req, res
   let student = {name, father, mother, dateOfJoin, dateOfPassout, address, phone, adhar, studentid, password};
   StudentModel.findOne(student).then((stud) => {
     if (stud) {
-      return res.render("adminstudentadd.hbs", {name: 'Admin', msg:'Duplicate Student'});
+      return res.render("adminstudentadd.hbs", {name: req.user.name, msg:'Duplicate Student'});
     } else {
       new StudentModel(student).save().then((student) => {
-        res.render("adminstudentadd.hbs", {name: 'Admin', account:{studentid, password}});
+        res.render("adminstudentadd.hbs", {name: req.user.name, account:{studentid, password}});
       }, (err) => {
         console.log(err)
-        res.render("adminstudentadd.hbs", {name: 'Admin', msg:'Unable to store student'});
+        res.render("adminstudentadd.hbs", {name: req.user.name, msg:'Unable to store student'});
       });
     }
   }, (err) => {
-    res.render("adminstudentadd.hbs", {name: 'Admin', msg:'Unable to store student'});
+    res.render("adminstudentadd.hbs", {name: req.user.name, msg:'Unable to store student'});
   });
 });
 
 app.get('/admin/student/update', ensureAuthenticated, (req, res) => {
-  res.render('adminstudentupdate.hbs', {name: 'Admin'});
+  res.render('adminstudentupdate.hbs', {name: req.user.name});
 });
 
 app.post('/admin/student/modify', ensureAuthenticated, upload.single(), (req, res) => {
@@ -304,34 +321,34 @@ app.post('/admin/student/modify', ensureAuthenticated, upload.single(), (req, re
  
   StudentModel.findOneAndUpdate(old_stud, new_stud).then((stud) => {
     if (!stud) {
-      res.render('adminstudentupdate.hbs', {name: 'Admin', msg:"No Student found"});
+      res.render('adminstudentupdate.hbs', {name: req.user.name, msg:"No Student found"});
     } else {
-      res.render('adminstudentupdate.hbs', {name: 'Admin', msg:"Student Updated"});
+      res.render('adminstudentupdate.hbs', {name: req.user.name, msg:"Student Updated"});
     }
   }, (err) => {
-    res.render('adminstudentupdate.hbs', {name: 'Admin', msg:"Unable to update student"});
+    res.render('adminstudentupdate.hbs', {name: req.user.name, msg:"Unable to update student"});
   });
 });
 
 app.get('/admin/student/remove', ensureAuthenticated, (req, res) => {
-  res.render('adminstudentremove.hbs', {name: 'Admin'});
+  res.render('adminstudentremove.hbs', {name: req.user.name});
 });
 
 app.post('/admin/student/delete', ensureAuthenticated, upload.single(), (req, res) => {
   StudentModel.findOneAndDelete({name: req.body.name, studentid: req.body.id}).then((student) => {
     if (!student) {
-      res.render('adminstudentremove.hbs', {name: 'Admin', msg: "No Student Found"});
+      res.render('adminstudentremove.hbs', {name: req.user.name, msg: "No Student Found"});
     } else {
-      res.render('adminstudentremove.hbs', {name: 'Admin', msg: "Student Deleted"});
+      res.render('adminstudentremove.hbs', {name: req.user.name, msg: "Student Deleted"});
     }
   }, (err) => {
-    res.render('adminstudentremove.hbs', {name: 'Admin', msg: "Unable to Delete"});
+    res.render('adminstudentremove.hbs', {name: req.user.name, msg: "Unable to Delete"});
   });
 })
 
 // it will give remove batch form
 app.get('/admin/student/removebatch', ensureAuthenticated, (req, res) => {
-  res.render('adminstudentremovebatch.hbs', {name: 'Admin'});
+  res.render('adminstudentremovebatch.hbs', {name: req.user.name});
 });
 
 // it will completely remove students from database
@@ -340,29 +357,29 @@ app.get('/admin/student/removebatch', ensureAuthenticated, (req, res) => {
 app.post('/admin/student/deletebatch', ensureAuthenticated, upload.single(), (req, res) => {
   let passout_year = req.body.dop;
   StudentModel.deleteMany({dateOfPassout: passout_year}).then((students) => {
-    res.render('adminstudentremovebatch.hbs', {name: 'Admin', msg: `${passout_year} Batch removed successfully`, total: students.deletedCount});
+    res.render('adminstudentremovebatch.hbs', {name: req.user.name, msg: `${passout_year} Batch removed successfully`, total: students.deletedCount});
   }, (err) => {
-    res.render('adminstudentremovebatch.hbs', {name: 'Admin', msg: 'Unable to remove batch'});
+    res.render('adminstudentremovebatch.hbs', {name: req.user.name, msg: 'Unable to remove batch'});
   });
 });
 
 // ----------------------------- Teacher Section ------------------------------------
 
 app.get('/admin/teacher', ensureAuthenticated, (req, res) => {
-  res.render('adminteacher.hbs', {name: 'Admin'});
+  res.render('adminteacher.hbs', {name: req.user.name});
 });
 
 // show the add teacher form
 app.get('/admin/teacher/add', ensureAuthenticated, (req, res) => {
-  res.render('adminteacheradd.hbs', {name: 'Admin'});
+  res.render('adminteacheradd.hbs', {name: req.user.name});
 });
 
 // store the teacher
 app.post('/admin/teacher/save', ensureAuthenticated, upload.single('image'), (req, res) => {
   new TeacherModel({name: req.body.name, contact: req.body.contact, email: req.body.email, imagePath: req.file.filename}).save().then((teacher) => {
-    res.render('adminteacheradd.hbs', {name: 'Admin', msg: 'Teacher added successfully.'});
+    res.render('adminteacheradd.hbs', {name: req.user.name, msg: 'Teacher added successfully.'});
   }, (err) => {
-    res.render('adminteacheradd.hbs', {name: 'Admin', msg: 'duplicate value or invallid value'});
+    res.render('adminteacheradd.hbs', {name: req.user.name, msg: 'duplicate value or invallid value'});
   });
 });
 
@@ -370,35 +387,42 @@ app.post('/admin/teacher/save', ensureAuthenticated, upload.single('image'), (re
 app.get('/admin/teacher/remove', (req, res) => {
   TeacherModel.find().then((teachers) => {
     if (teachers.length === 0) {
-      res.render('adminteacherremove.hbs', {name: "Admin", msg: 'No teacher found'});
+      res.render('adminteacherremove.hbs', {name: req.user.name, msg: 'No teacher found'});
     } else {
-      res.render('adminteacherremove.hbs', {name: "Admin", teachers});
+      res.render('adminteacherremove.hbs', {name: req.user.name, teachers});
     }
   }, (err) => {
-    res.render('adminteacherremove.hbs', {name: 'Admin', msg: 'some error occured'});
+    res.render('adminteacherremove.hbs', {name: req.user.name, msg: 'some error occured'});
   });
 });
 
 // delete the teacher
 app.get('/admin/teacher/delete/:name/:email/:contact', ensureAuthenticated, (req, res) => {
   TeacherModel.findOneAndDelete({name: req.params.name, email: req.params.email, contact: req.params.contact}).then((teacher) => {
+    // remove picture from upload folder
+    let file = path.join(__dirname, '/public/upload/', teacher.imagePath);
+    fs.unlink(file, (err) => {
+      if (err) {
+        res.json({err: 'Unable to delete teacher image'});
+      }
+    });
     TeacherModel.find().then((teachers) => {
       if (teachers.length === 0) {
-        res.render('adminteacherremove.hbs', {name: "Admin", msg: 'No teacher found'});
+        res.render('adminteacherremove.hbs', {name: req.user.name, msg: 'No teacher found'});
       } else {
-        res.render('adminteacherremove.hbs', {name: "Admin", teachers});
+        res.render('adminteacherremove.hbs', {name: req.user.name, teachers});
       }
     }, (err) => {
-      res.render('adminteacherremove.hbs', {name: 'Admin', msg: 'some error occured'});
+      res.render('adminteacherremove.hbs', {name: req.user.name, msg: 'some error occured'});
     });
   }, (err) => {
-    res.render('adminteacherremove.hbs', {name: 'Admin', msg: 'some error occured while deleting'});
+    res.render('adminteacherremove.hbs', {name: req.user.name, msg: 'some error occured while deleting'});
   });
 });
 
 // give the update form
 app.get('/admin/teacher/update', ensureAuthenticated, (req, res) => {
-  res.render('teacherupdateform.hbs', {name: 'Admin'});
+  res.render('teacherupdateform.hbs', {name: req.user.name});
 });
 
 app.post('/admin/teacher/modify', ensureAuthenticated, upload.single(), (req, res) => {
@@ -407,25 +431,25 @@ app.post('/admin/teacher/modify', ensureAuthenticated, upload.single(), (req, re
   TeacherModel.findOneAndUpdate(old_data, new_data).then((teacher) => {
     TeacherModel.find().then((teachers) => {
       if (teachers.length === 0) {
-        res.render('adminteacherremove.hbs', {name: "Admin", msg: 'No teacher found'});
+        res.render('adminteacherremove.hbs', {name: req.user.name, msg: 'No teacher found'});
       } else {
-        res.render('adminteacherremove.hbs', {name: "Admin", teachers});
+        res.render('adminteacherremove.hbs', {name: req.user.name, teachers});
       }
     }, (err) => {
-      res.render('adminteacherremove.hbs', {name: 'Admin', msg: 'some error occured'});
+      res.render('adminteacherremove.hbs', {name: req.user.name, msg: 'some error occured'});
     });
   }, (err) => {
-    res.render('adminteacherremove.hbs', {name: 'Admin', msg: 'some error occured while deleting'});
+    res.render('adminteacherremove.hbs', {name: req.user.name, msg: 'some error occured while deleting'});
   });
 });
 
 // ------------------------------ Class Section -------------------------------------
 app.get('/admin/class', ensureAuthenticated, (req, res) => {
-  res.render('adminclass.hbs', {name: 'Admin'});
+  res.render('adminclass.hbs', {name: req.user.name});
 });
 
 app.get('/admin/class/add', ensureAuthenticated, (req, res) => {
-  res.render('adminclassadd.hbs', {name: 'Admin'});
+  res.render('adminclassadd.hbs', {name: req.user.name});
 });
 
 app.post('/admin/class/store', ensureAuthenticated, upload.single(), (req, res) => {
@@ -440,21 +464,21 @@ app.post('/admin/class/store', ensureAuthenticated, upload.single(), (req, res) 
   let cls = new ClassModel({year, class: _cls, section});
   ClassModel.findOne({class: _cls}).then((obj) => {
     if (obj) {
-      res.render('adminclassadd.hbs', {name: 'Admin', msg: 'Class already exist'});
+      res.render('adminclassadd.hbs', {name: req.user.name, msg: 'Class already exist'});
     } else {
       cls.save().then((obj) => {
-        res.render('adminclassadd.hbs', {name: 'Admin', msg: 'Class created'});
+        res.render('adminclassadd.hbs', {name: req.user.name, msg: 'Class created'});
       }, (err) => {
-        res.render('adminclassadd.hbs', {name: 'Admin', msg: 'Unable to create Class'});
+        res.render('adminclassadd.hbs', {name: req.user.name, msg: 'Unable to create Class'});
       });
     }
   }, (err) => {
-    res.render('adminclassadd.hbs', {name: 'Admin', msg: 'Unable to create Class'});
+    res.render('adminclassadd.hbs', {name: req.user.name, msg: 'Unable to create Class'});
   });
 });
 
 app.get('/admin/class/remove', ensureAuthenticated, (req, res) => {
-  res.render('adminclassremove.hbs', {name: 'Admin'});
+  res.render('adminclassremove.hbs', {name: req.user.name});
 });
 
 // it will remove student from class and mark database. it will not remve student from student database.
@@ -462,7 +486,7 @@ app.get('/admin/class/remove', ensureAuthenticated, (req, res) => {
 app.post('/admin/class/delete', ensureAuthenticated, upload.single(), (req, res) => {
   ClassModel.findOneAndDelete({year: req.body.year, class: req.body.class}).then((cls) => {
     if (!cls) {
-      res.render('adminclassremove.hbs', {name: 'Admin', msg: 'Class not found'});
+      res.render('adminclassremove.hbs', {name: req.user.name, msg: 'Class not found'});
     } else {
       // remove students from mark database
       for (let i=0; i < cls.section.length; i++) {
@@ -471,15 +495,15 @@ app.post('/admin/class/delete', ensureAuthenticated, upload.single(), (req, res)
         }
       }
 
-      res.render('adminclassremove.hbs', {name: 'Admin', msg: 'Class removed'});
+      res.render('adminclassremove.hbs', {name: req.user.name, msg: 'Class removed'});
     }
   }, (err) => {
-    res.render('adminclassremove.hbs', {name: 'Admin', msg: 'unable to remove class'});
+    res.render('adminclassremove.hbs', {name: req.user.name, msg: 'unable to remove class'});
   });
 });
 
 app.get('/admin/class/addstudent', ensureAuthenticated, (req, res) => {
-  res.render('adminclassaddstudent.hbs', {name: 'Admin'});
+  res.render('adminclassaddstudent.hbs', {name: req.user.name});
 });
 
 // store student in the database
@@ -490,11 +514,11 @@ app.post('/admin/class/storestudent', ensureAuthenticated, upload.single(), (req
 
     StudentModel.findOne({studentid: req.body.id}).then((student) => {
       if (!student) {
-        res.render('adminclassaddstudent.hbs', {name: 'Admin', msg:'No student found'});
+        res.render('adminclassaddstudent.hbs', {name: req.user.name, msg:'No student found'});
       } else {
         ClassModel.findOne({class: cls, 'section.sectionname': section}).then((clsobj) => {
           if (!clsobj) {
-            res.render('adminclassaddstudent.hbs', {name: 'Admin', msg: 'No class or section found'});
+            res.render('adminclassaddstudent.hbs', {name: req.user.name, msg: 'No class or section found'});
           } else {
             //duplicate checking
             for (let i=0; i < clsobj.section.length; i++) {
@@ -502,11 +526,11 @@ app.post('/admin/class/storestudent', ensureAuthenticated, upload.single(), (req
                 for (let j=0; j < clsobj.section[i].students.length; j++) {
                   if (clsobj.section[i].students[j].studentid === stud.studentid) {
                     studentFound = true;
-                    return res.render('adminclassaddstudent.hbs', {name: 'Admin', msg: 'Student already exists'});
+                    return res.render('adminclassaddstudent.hbs', {name: req.user.name, msg: 'Student already exists'});
                   }
                   else if (clsobj.section[i].students[j].rollno === stud.rollno) {
                     studentFound = true;
-                    return res.render('adminclassaddstudent.hbs', {name: 'Admin', msg: 'Duplicate rollno'});
+                    return res.render('adminclassaddstudent.hbs', {name: req.user.name, msg: 'Duplicate rollno'});
                   }
                 }
               }
@@ -518,24 +542,24 @@ app.post('/admin/class/storestudent', ensureAuthenticated, upload.single(), (req
                 new ClassModel(clsobj).save().then((obj) => {
                   // create marks entry for the student in the mark table
                   new MarkModel({class: cls, studentid: req.body.id}).save().then((markObj) => {}, (err) => {});
-                  res.render('adminclassaddstudent.hbs', {name: 'Admin', msg: 'Student added'});
+                  res.render('adminclassaddstudent.hbs', {name: req.user.name, msg: 'Student added'});
                 }, (err) => {
-                  res.render('adminclassaddstudent.hbs', {name: 'Admin', msg: 'Unable to add student'});
+                  res.render('adminclassaddstudent.hbs', {name: req.user.name, msg: 'Unable to add student'});
                 });
               }
             }
           }
         }, (err) => {
-          res.render('adminclassaddstudent.hbs', {name: 'Admin', msg: 'Unable to add Student'});
+          res.render('adminclassaddstudent.hbs', {name: req.user.name, msg: 'Unable to add Student'});
         });
       }
     }, (err) => {
-      res.render('adminclassaddstudent.hbs', {name: 'Admin', msg: 'Unable to add Student'});
+      res.render('adminclassaddstudent.hbs', {name: req.user.name, msg: 'Unable to add Student'});
     });
 });
 
 app.get('/admin/class/removestudent', ensureAuthenticated, (req, res) => {
-  res.render('adminclassremovestudent.hbs', {name: 'Admin'});
+  res.render('adminclassremovestudent.hbs', {name: req.user.name});
 });
 
 // delete student from class
@@ -547,7 +571,7 @@ app.post('/admin/class/deletestudent', ensureAuthenticated, upload.single(), (re
 
   ClassModel.findOne({class: cls, 'section.sectionname': section}).then((clsobj) => {
     if (!clsobj) {
-      res.render('adminclassremovestudent.hbs', {name: 'Admin', msg: 'No class or section found'});
+      res.render('adminclassremovestudent.hbs', {name: req.user.name, msg: 'No class or section found'});
     } else {
       for (let i=0; i < clsobj.section.length; i++) {
         if (clsobj.section[i].sectionname === section) {
@@ -556,67 +580,120 @@ app.post('/admin/class/deletestudent', ensureAuthenticated, upload.single(), (re
               clsobj.section[i].students.splice(j, 1);
               studentFound = true;
               new ClassModel(clsobj).save().then((obj) => {
-                res.render('adminclassremovestudent.hbs', {name: 'Admin', msg: 'Student removed successfully'});
+                res.render('adminclassremovestudent.hbs', {name: req.user.name, msg: 'Student removed successfully'});
               }, (err) => {
-                res.render('adminclassremovestudent.hbs', {name: 'Admin', msg: 'Unable to remove student'});
+                res.render('adminclassremovestudent.hbs', {name: req.user.name, msg: 'Unable to remove student'});
               });
-            }
-          }
+            }req.user.name    }
           if (!studentFound){
-            res.render('adminclassremovestudent.hbs', {name: 'Admin', msg: 'No student found'});
+            res.render('adminclassremovestudent.hbs', {name: req.user.name, msg: 'No student found'});
           }
         }
       }
     }
   }, (err) => {
-    res.render('adminclassremovestudent.hbs', {name: 'Admin', msg: 'Unable to remove student'});
+    res.render('adminclassremovestudent.hbs', {name: req.user.name, msg: 'Unable to remove student'});
   });
 });
 
 app.get('/admin/class/search', ensureAuthenticated, (req, res) => {
-  res.render('adminclasssearch.hbs', {name: 'Admin'});
+  res.render('adminclasssearch.hbs', {name: req.user.name});
 });
 
 app.post('/admin/class/showlist', ensureAuthenticated, upload.single(), (req, res) => {
   let cls = req.body.class;
   ClassModel.findOne({class: cls}).then((clsobj) => {
     if (!clsobj) {
-      res.render('adminclasssearch.hbs', {name: 'Admin', msg: 'Class not found'});
+      res.render('adminclasssearch.hbs', {name: req.user.name, msg: 'Class not found'});
     } else {
       for (let i=0; i < clsobj.section.length; i++) {
         for (let j=0; j < clsobj.section[i].students.length; j++) {
           StudentModel.findOne({studentid: clsobj.section[i].students[j].studentid}).then((std) => {
+            console.log(std)
             clsobj.section[i].students[j].name = std.name;
             clsobj.section[i].students[j].studentid = std.studentid;
             clsobj.section[i].students[j].phone = std.phone;
           }, (err) => {});
         }
       }
-      res.render('adminclasssearch.hbs', {name: 'Admin', clsobj});
+      res.render('adminclasssearch.hbs', {name: req.user.name, clsobj});
     }
   }, (err) => {
-    res.render('adminclasssearch.hbs', {name: 'Admin', msg: 'Unable to search list'});
+    res.render('adminclasssearch.hbs', {name: req.user.name, msg: 'Unable to search list'});
   });
 });
+
+// it will give class input foem to download the excel data
+app.get('/admin/class/download', ensureAuthenticated, (req, res) => {
+  res.render('adminclassdownloadform.hbs', {name: req.user.name});
+});
+
+// it will return the whole class
+function getClass(cls) {
+  return new Promise((resolve, reject) => {
+    ClassModel.findOne({class: cls}).then((obj) => {
+      resolve(obj);
+    }, (err) => {
+      reject(err);
+    });
+  });
+}
+
+// it will return the student object having the given id
+function getStudent(studentid) {
+  return new Promise((resolve, reject) => {
+    StudentModel.findOne({studentid}).then((student) => {
+      resolve(student);
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
+// it will create the csv file and allow user to download the file
+// stud name, father, mother, class, dob, gender, date of admission, adhar, address
+app.post('/admin/class/downloadlist', ensureAuthenticated, upload.single(), async(req, res) => {
+  let cls = req.body.class;
+  // blank student array, will contain all students of the class which will convert into csv file
+  let studentslist = []; 
+  let clsObj = await getClass(cls);
+  if (!clsObj) {
+    return res.render('adminclassdownloadform.hbs', {name: req.user.name, msg: 'No class found'});
+  }
+  for (let i=0; i < clsObj.section.length; i++) {
+    for (let j=0; j < clsObj.section[i].students.length; j++) {
+      let student = await getStudent(clsObj.section[i].students[j].studentid);
+      studentslist.push({name: student.name, father: student.father, mother: student.mother, class: cls, aadhar: student.adhar, address: student.address});
+    }
+  }
+  console.log(studentslist)
+  // convert JSON to csv
+  let csv = json2csv(studentslist, {fileds: ['name', 'father name', 'mother name', 'class', 'aadhar', 'address']});
+  fs.writeFileSync(`./public/downloads/class_${cls}.csv`, csv);
+  res.download(`./public/downloads/class_${cls}.csv`);
+  req.filepath = `./public/downloads/class_${cls}.csv`
+  // delete csv file from server
+});
+
 
 // ------------------------------ Mark Section --------------------------------------
 
 app.get('/admin/mark', ensureAuthenticated, (req, res) => {
-  res.render('adminmark.hbs', {name: 'Admin'});
+  res.render('adminmark.hbs', {name: req.user.name});
 });
 
 // it will give the exam and class radio buttons
 app.get('/admin/mark/examtype', ensureAuthenticated, (req, res) => {
-  res.render('adminmarkexamtype.hbs', {name: 'Admin'});
+  res.render('adminmarkexamtype.hbs', {name: req.user.name});
 });
 
 app.post('/admin/mark/add', ensureAuthenticated, upload.single(), (req, res) => {
   let cls = req.body.class;
   let exmtype = req.body.exm;
   SubjectModel.findOne({class: cls}).then((subjects) => {
-    res.render('adminmarkform.hbs', {name: 'Admin', exm: exmtype, cls, subjects});
+    res.render('adminmarkform.hbs', {name: req.user.name, exm: exmtype, cls, subjects});
   }, (err) => {
-    res.render('adminmarkexamtype.hbs', {name: 'Admin', msg: 'Unable to proceed'});
+    res.render('adminmarkexamtype.hbs', {name: req.user.name, msg: 'Unable to proceed'});
   });
 });
 
@@ -627,7 +704,7 @@ function createMarkObj(req, res, next) {
   let scoredmark = 0;
   SubjectModel.findOne({class:cls}).then((subject) => {
     if (!subject) {
-      res.render('adminmarkexamtype.hbs', {name: 'Admin', msg: 'class not exist in database'});
+      res.render('adminmarkexamtype.hbs', {name: req.user.name, msg: 'class not exist in database'});
     } else {
         for (let i = 0; i < subject.subjects.length; i++) {
           if (req.body.exm === 'annual' || req.body.exm === 'halfyearly') {
@@ -644,7 +721,7 @@ function createMarkObj(req, res, next) {
         next();
     }
   }, (err) => {
-    res.render('adminmarkexamtype.hbs', {name: 'Admin', msg: 'Unable to find subjects list'});
+    res.render('adminmarkexamtype.hbs', {name: req.user.name, msg: 'Unable to find subjects list'});
   });
 }
 
@@ -655,34 +732,34 @@ app.post('/admin/mark/store', ensureAuthenticated, upload.single(), createMarkOb
 
   ClassModel.findOne({class: cls, 'section.students.studentid': studentid}).then((clsObj) => {
     if (!clsObj) {
-      res.render('adminmarkexamtype.hbs', {name: 'Admin', msg: 'Student not found in this class'});
+      res.render('adminmarkexamtype.hbs', {name: req.user.name, msg: 'Student not found in this class'});
     } else {
       MarkModel.findOne({class: cls, studentid: studentid}).then((student) => {
         if (!student) {
-          res.render('adminmarkexamtype.hbs', {name: 'Admin', msg: 'Student not found in mark database'});
+          res.render('adminmarkexamtype.hbs', {name: req.user.name, msg: 'Student not found in mark database'});
         } else {
           //student found in both class and mark database
           student.marks[exm].marks = req.marks;
           student.marks[exm].totalmark = req.scoredmark;
           student.marks[exm].percentage = (req.scoredmark / req.totalmark) * 100;
           new MarkModel(student).save().then((std) => {
-            res.render('adminmarkexamtype.hbs', {name: 'Admin', msg: 'Mark Stored successfully'});
+            res.render('adminmarkexamtype.hbs', {name: req.user.name, msg: 'Mark Stored successfully'});
           }, (err) =>{
-            res.render('adminmarkexamtype.hbs', {name: 'Admin', msg: 'Unable to store mark'});
+            res.render('adminmarkexamtype.hbs', {name: req.user.name, msg: 'Unable to store mark'});
           });
         }
       }, (err) => {
-        res.render('adminmarkexamtype.hbs', {name: 'Admin', msg: 'Unable to store mark in database'});    
+        res.render('adminmarkexamtype.hbs', {name: req.user.name, msg: 'Unable to store mark in database'});    
       });
     }
   }, (err) => {
-    res.render('adminmarkexamtype.hbs', {name: 'Admin', msg: 'Unable to store mark in database'});
+    res.render('adminmarkexamtype.hbs', {name: req.user.name, msg: 'Unable to store mark in database'});
   });
 });
 
 // give the class and mark list form
 app.get('/admin/mark/update', ensureAuthenticated, (req, res) => {
-  res.render('adminmarkupdateform.hbs', {name: 'Admin'});
+  res.render('adminmarkupdateform.hbs', {name: req.user.name});
 });
 
 // give the update form of different subjects with mark
@@ -692,13 +769,13 @@ app.post('/admin/mark/updatemarkform', ensureAuthenticated, upload.single(), (re
   let studentid = req.body.id;
   MarkModel.findOne({class:cls, studentid}).then((student) => {
     if (!student) {
-      res.render('adminmarkupdateform.hbs', {name: 'Admin', msg: 'No student found in the class'});
+      res.render('adminmarkupdateform.hbs', {name: req.user.name, msg: 'No student found in the class'});
     } else {
       let marks = student.marks[exm].marks;
-      res.render('markupdateform.hbs', {name: 'Admin', marks, cls, exm, id: studentid});
+      res.render('markupdateform.hbs', {name: req.user.name, marks, cls, exm, id: studentid});
     }
   }, (err) => {
-    res.render('adminmarkupdateform.hbs', {name: 'Admin', msg: 'Unable to proceed'});
+    res.render('adminmarkupdateform.hbs', {name: req.user.name, msg: 'Unable to proceed'});
   });
 });
 
@@ -711,28 +788,28 @@ app.post('/admin/mark/modify', ensureAuthenticated, upload.single(), createMarkO
 
   ClassModel.findOne({class: cls, 'section.students.studentid': studentid}).then((clsObj) => {
     if (!clsObj) {
-      res.render('adminmarkupdateform.hbs', {name: 'Admin', msg: 'Student not found in this class'});
+      res.render('adminmarkupdateform.hbs', {name: req.user.name, msg: 'Student not found in this class'});
     } else {
       MarkModel.findOne({class: cls, studentid: studentid}).then((student) => {
         if (!student) {
-          res.render('adminmarkupdateform.hbs', {name: 'Admin', msg: 'Student not found in mark database'});
+          res.render('adminmarkupdateform.hbs', {name: req.user.name, msg: 'Student not found in mark database'});
         } else {
           //student found in both class and mark database
           student.marks[exm].marks = req.marks;
           student.marks[exm].totalmark = req.scoredmark;
           student.marks[exm].percentage = (req.scoredmark / req.totalmark) * 100;
           new MarkModel(student).save().then((std) => {
-            res.render('adminmarkupdateform.hbs', {name: 'Admin', msg: 'Mark updated successfully'});
+            res.render('adminmarkupdateform.hbs', {name: req.user.name, msg: 'Mark updated successfully'});
           }, (err) =>{
-            res.render('adminmarkupdateform.hbs', {name: 'Admin', msg: 'Unable to update mark'});
+            res.render('adminmarkupdateform.hbs', {name: req.user.name, msg: 'Unable to update mark'});
           });
         }
       }, (err) => {
-        res.render('adminmarkupdateform.hbs', {name: 'Admin', msg: 'Unable to update mark in database'});    
+        res.render('adminmarkupdateform.hbs', {name: req.user.name, msg: 'Unable to update mark in database'});    
       });
     }
   }, (err) => {
-    res.render('adminmarkupdateform.hbs', {name: 'Admin', msg: 'Unable to update mark in database'});
+    res.render('adminmarkupdateform.hbs', {name: req.user.name, msg: 'Unable to update mark in database'});
   });
 });
 
@@ -740,19 +817,19 @@ app.post('/admin/mark/modify', ensureAuthenticated, upload.single(), createMarkO
 // ------------------------------ Notice Section ------------------------------------
 
 app.get('/admin/notice', ensureAuthenticated, (req, res) => {
-  res.render('adminnotice.hbs', {name: 'Admin'});
+  res.render('adminnotice.hbs', {name: req.user.name});
 });
 
 // give the notice add form
 app.get('/admin/notice/add', ensureAuthenticated, (req, res) => {
-  res.render('adminnoticeadd.hbs', {name: 'Admin'});
+  res.render('adminnoticeadd.hbs', {name: req.user.name});
 });
 //store notice in database
 app.post('/admin/notice/store', ensureAuthenticated, upload.single(), (req, res) => {
   new NoticeModel({noticeno: req.body.noticeno, date: req.body.date, notice: req.body.notice}).save().then((notice) => {
-    res.render('adminnoticeadd.hbs', {name: 'Admin', msg: 'notice added successfully'});
+    res.render('adminnoticeadd.hbs', {name: req.user.name, msg: 'notice added successfully'});
   }, (err) => {
-    res.render('adminnoticeadd.hbs', {name: 'Admin', msg: 'unable to add notice to database'});
+    res.render('adminnoticeadd.hbs', {name: req.user.name, msg: 'unable to add notice to database'});
   });
 });
 
@@ -760,12 +837,12 @@ app.post('/admin/notice/store', ensureAuthenticated, upload.single(), (req, res)
 app.get('/admin/notice/remove', ensureAuthenticated, (req, res) => {
   NoticeModel.find().then((notices) => {
     if (notices.length === 0) {
-      res.render('adminnoticeremove.hbs', {name: 'Admin', notices, msg: 'No Notice Found'});
+      res.render('adminnoticeremove.hbs', {name: req.user.name, notices, msg: 'No Notice Found'});
     } else {
-      res.render('adminnoticeremove.hbs', {name: 'Admin', notices});
+      res.render('adminnoticeremove.hbs', {name: req.user.name, notices});
     }
   }, (err) => {
-    res.render('adminnoticeremove.hbs', {name: 'Admin', msg: 'some error occured'});
+    res.render('adminnoticeremove.hbs', {name: req.user.name, msg: 'some error occured'});
   });
 });
 
@@ -774,15 +851,15 @@ app.get('/admin/notice/delete/:noticeno', ensureAuthenticated, upload.single(), 
   NoticeModel.findOneAndDelete({noticeno: req.params.noticeno}).then((notice) => {
     NoticeModel.find().then((notices) => {
       if (notices.length === 0) {
-        res.render('adminnoticeremove.hbs', {name: 'Admin', notices, msg: 'No Notice Found'});
+        res.render('adminnoticeremove.hbs', {name: req.user.name, notices, msg: 'No Notice Found'});
       } else {
-        res.render('adminnoticeremove.hbs', {name: 'Admin', notices});
+        res.render('adminnoticeremove.hbs', {name: req.user.name, notices});
       }
     }, (err) => {
-      res.render('adminnoticeremove.hbs', {name: 'Admin', msg: 'some error occured'});
+      res.render('adminnoticeremove.hbs', {name: req.user.name, msg: 'some error occured'});
     });
   }, (err) => {
-    res.render('adminnoticeremove.hbs', {name: 'Admin', msg: 'some error occured'});
+    res.render('adminnoticeremove.hbs', {name: req.user.name, msg: 'some error occured'});
   });
 });
 

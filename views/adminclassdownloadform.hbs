@@ -31,7 +31,7 @@
                   <li><a href="/admin/teacher">Teacher</a></li>
                   <li><a href="/admin/student">Student</a></li>
                   <li><a href="/admin/mark">Mark</a></li>
-                  <li><a href="#">Class</a></li>
+                  <li><a href="/admin/class">Class</a></li>
                   <li><a href="/admin/logout">logout</a></li>
                   <li><a href="#" class="blue darken-1">{{name}}</a></li>
                 </ul>              
@@ -43,7 +43,7 @@
                     <li><a href="/admin/teacher" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Teacher</a></li>
                     <li><a href="/admin/student" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Student</a></li>
                     <li><a href="/admin/mark" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Mark</a></li>
-                    <li><a href="#" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Class</a></li>
+                    <li><a href="/admin/class" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Class</a></li>
                     <li><a href="/admin/logout" class="btn waves-effect light-blue accent-3 white-text z-depth-4">logout</a></li>
                   </ul>
                 </div>              
@@ -54,44 +54,31 @@
     {{!-- body --}}
     <section style="padding-top: 2%">
       <div class="container">
-        <div class="row" id="add">
-            <div class="col s12 center">
-              <a href="/admin/class/add" class="btn-floating btn-large waves-effect waves-light green pulse"><i class="material-icons">add</i></a>
+        <div class="row">
+          <div class="col s12 m5 center">
+            <div class="card-panel">
+              
+              <form action="/admin/class/downloadlist" method="POST" enctype="multipart/form-data">
+                  <div class="row">
+                    <div class="input-field col s6 offset-s3">
+                      <input id="class" type="text" class="validate" name="class">
+                      <label for="class">Class</label>
+                    </div>
+                  </div>
+
+                  <button class="btn waves-effect waves-light blue" type="submit" name="action" style="margin-top: -7%">Download
+                    <i class="material-icons right">get_app</i>
+                  </button>
+                  <div class="center-align red-text" style="margin-top: 5px;">Download may take some time.</div>
+              </form>
+
             </div>
-            <div class="col s12 center" style="margin: 2% auto 4%">Add Class</div>
-        </div>
-        <div class="row" id="remove">
-            <div class="col s12 center">
-              <a href="/admin/class/remove" class="btn-floating btn-large waves-effect waves-light red pulse"><i class="material-icons">delete</i></a>
-            </div>
-            <div class="col s12 center" style="margin: 2% auto 4%">Remove Class</div>
-        </div>
-        <div class="row" id="addstudent">
-            <div class="col s12 center">
-              <a href="/admin/class/addstudent" class="btn-floating btn-large waves-effect waves-light green pulse"><i class="material-icons">add</i></a>
-            </div>
-            <div class="col s12 center" style="margin: 2% auto 4%">Add Student</div>
-        </div>
-        <div class="row" id="removestudent">
-            <div class="col s12 center">
-              <a href="/admin/class/removestudent" class="btn-floating btn-large waves-effect waves-light red pulse"><i class="material-icons">remove</i></a>
-            </div>
-            <div class="col s12 center" style="margin: 2% auto 4%">Remove Student</div>
-        </div>
-        <div class="row" id="serach">
-            <div class="col s12 center">
-              <a href="/admin/class/search" class="btn-floating btn-large waves-effect waves-light blue pulse"><i class="material-icons">list</i></a>
-            </div>
-            <div class="col s12 center" style="margin: 2% auto 4%">Display Students</div>
-        </div>
-        <div class="row" id="serach">
-            <div class="col s12 center">
-              <a href="/admin/class/download" class="btn-floating btn-large waves-effect waves-light purple darken-4 pulse"><i class="material-icons">get_app</i></a>
-            </div>
-            <div class="col s12 center" style="margin: 2% auto 4%">Download Student Info</div>
+          </div>
         </div>
       </div>
+      <div class="container row" style="padding-left: 5%">{{msg}}</div>
     </section>
+
     
     <!--materialize init-->
     <script>
