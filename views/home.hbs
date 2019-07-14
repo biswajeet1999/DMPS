@@ -5,16 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>DMPS</title>
+    {{!-- title icon --}}
+    <link rel="shortcut icon" href="logo.png" />
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    {{!-- animate on scroll css--}}
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <!--j-Query-->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     {{!-- google fonts --}}
     <link href="https://fonts.googleapis.com/css?family=Tangerine:700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Goudy+Bookletter+1911|Tangerine:700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Tangerine&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Cairo&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fredericka+the+Great&display=swap" rel="stylesheet">
 
     <!--local css-->
     <link rel="stylesheet" href="./style.css">
@@ -41,7 +47,7 @@
         height: 400px;
         position: relative;
         background: url('joinus.jpg');
-        background-attachment: fixed;
+        {{!-- background-attachment: fixed; --}}
         background-position: center;
         background-size: cover;
       }
@@ -78,7 +84,7 @@
       }
       #sports {
         margin: 0px;
-        background: url('sports.jpg');
+        background: url('sports.jpeg');
         position: center;
         background-size: cover;
       }
@@ -90,15 +96,20 @@
       }
       #cultural-event {
         margin: 0px;
-        background: url('culturalevents.jpg');
+        background: url('culturalevents1.jpeg');
         position: center;
         background-size: cover;
+        height: 700px;
       }
       .cultural-overlay {
         width: 100%;
         height: 100%;
         margin: 0px;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.3);
+      }
+      .logo {
+        min-height: 100px;
+        width: 100%;
       }
     </style>
 </head>
@@ -106,7 +117,8 @@
     <!--header-->
     <header>
         <!--navbar-->
-        <nav class="blue">
+        <div class="navbar-fixed">
+          <nav class="blue">
           <div class="container">
             <div class="nav-wrapper">
                 <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
@@ -132,7 +144,20 @@ style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-w
                   </ul>
                 </div>              
             </div>
-        </nav>
+          </nav>
+        </div>
+
+        <section id="logo">
+          <div class="row logo orange darken-3">
+            <div class="col s2 logo center">
+              <img src="logo.png" height="100" width="100">
+            </div>
+            <div class="col s10 center">
+              <h3 class="white-text">Deepak Memorial Public School, Polasara, Ganjam</h3>
+            </div>
+          </div>
+        </section>
+
         <!--courosal-->
         <div class="carousel carousel-slider center" style="position: relative;">
             
@@ -168,7 +193,7 @@ style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-w
       <a class="waves-effect waves-light btn" id="feedback"><i class="material-icons left">feedback</i>Feedback</a>
     </section>
 
-    <section id="quote" style=" background: #eeeeee;">
+    <section id="quote">
       <div class="row" style="min-height:100px; overflow: auto;">
         <div class="col s12 center quote" style="padding-top: 10px">
           <span style="font-size: 70px; font-family: 'Tangerine', cursive; color: #00695c; text-shadow: 2px 2px 8px gray" >Proud of our past, <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;belief in our future!</span>
@@ -180,17 +205,52 @@ style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-w
       <div class="joinus-wrapper">
         <div class="joinus-overlay"></div>
         <div class="joinus">JOIN US</div>
-        <a class="join waves-effect waves-light btn pink">APPLY NOW</a>
+        <a href="/apply" class="join waves-effect waves-light btn pink">APPLY NOW</a>
       </div>
     </section>
 
-    <section id="about-us">
+    <section id="about-us" style="margin-top:5%">
       <div class="container">
         <div class="row">
-          <div class="col s12 center-align">
-            <h2 style="color: #00c853; text-shadow: 10px 10px 30px green">About Us</h2>
-            <p style="font-size: 30px; font-family: 'Open Sans', sans-serif;">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam tempora nisi similique voluptate nihil, temporibus saepe eius excepturi assumenda aliquam error in ducimus dolorum totam suscipit esse quaerat incidunt voluptatum.</p>
+          <div class="col s12">
+            <h4 style="color: #00c853; margin-bottom: 50px">About Us</h4>
+            <p style="font-family: 'Cairo', sans-serif; font-size: 20px">
+              Welcome To Deepak Memorial Public School.It is located at polasara,ganjam,Odisha.we are part of recognised (NOC) by govt. of odisha-school and mass education department.
+              DMP school services above 300 student in grades L.K.G to 7th as well as 15+ teachers.This is School is originally build in 2012.Our students are participating in the Mathematics Olympiads,quiz and debates competition. 
+              The process of infusing technology into the classrooms, media center, and computer labs has become one of the priority goals of our Administration. 
+              This technology will enable our students to have access to the world right in their very own classrooms. Technology also becomes a great tool for our teachers who work hard to maximize the academic potential of each of our students at DMPS.
+              We are determined to educate the "whole" child and prepare our students for tomorrow. Our goal is to work together with parents, students, and community members during the school year. Come visit us and experience the thrill of Tiger Territory!!!
+            </p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container" style="padding:5%">
+        <div class="row">
+          <div class="col s12 m5 offset-m7 center-align" style="border-bottom: 2px solid brown">
+            <h4 style="color: brown; font-family: 'Fredericka the Great', cursive;">Principal's Message</h4>
+          </div>
+        </div>
+        <div class="row">
+          
+          <div class="col s12 m5">
+            <div class="card z-depth-3">
+              <div class="card-image">
+                <img src="principal.jpg">
+                <span class="card-title">Bhagaban Sahu</span>
+              </div> 
+            </div>
+          </div>
+
+          <div class="col s12 m5 offset-m2" style="padding-left: 5%">
+            <p style="font-family: 'Cairo', sans-serif; font-size: 20px">
+              " Deepak Memorial Public School is committed to always doing our very best, striving to accomplish our goals, and pursuing the highest standards in all that we do. We invite parents and the community to join our highly professional staff in pursuing high academic standards of achievement for all students. 
+              Our goal is to develop the principles of sound character for all children and create an atmosphere that will encourage active learning and self motivation. "
+           </p>
+          </div>
+          
         </div>
       </div>
     </section>
@@ -200,28 +260,181 @@ style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-w
         <div class="container" style="padding: 2%">
           <div class="row">
             <h3 class="center-align" style="color: #00c853; text-shadow: 10px 10px 15px green">Cultural Events</h3>
-            <div class="col s12 m4 offset-m8 center-align">
-              <p style="font-size: 30px; font-family: 'Open Sans', sans-serif; color: #c5cae9">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam tempora nisi similique voluptate nihil, temporibus saepe eius excepturi assumenda aliquam error in ducimus dolorum totam suscipit esse quaerat incidunt voluptatum.</p>
+            <div class="col s12 m4 offset-m8 left-align">
+              <p style="font-family: 'Cairo', sans-serif; font-size: 20px; color: silver;padding: 10%; margin-top: 100%; border-radius: 5%; background: rgba(0, 0, 0, 0.7);">
+                We organize different cultural events. students actively participate
+                in the events and show their hidden tallent.
+              </p>
             </div>
           </div>
         </div>
       </div>
     </section>
 
+    <section id="quotes" style="margin-top: 10%; margin-bottom: 10%">
+      <h4 class="blue-text" style="text-align: center; margin-bottom: 5%">What Successful People Think...</h4>        
+        <div class="row ">
+          <div class="col s12 m3 offset-m1">
+            <p> Develop a passion for learning. If you do, you will never cease to grow.</p>
+            <h5 class="right">Anthony J. D’Angelo</h5>
+          </div>
+          <div class="col s12 m3">
+            <p>Live as if you were to die tomorrow. Learn as if you were to live forever.</p>
+            <h5 class="right">Mahatma Gandhi</h5>
+          </div>
+          <div class="col s12 m3">
+            <p>Education without values, as useful as it is, seems rather to make man a more clever devil.</p>
+            <h5 class="right">C.S. Lewis</h5>
+          </div>
+        </div>
+    </section>
+
+    <br>
+
+    <section id="image-gallary">
+
+      <div class="row center-align" style="margin-bottom: 6% !important">
+        <h4 class="orange-text">Image Gallery</h4>
+      </div>
+
+      <div class="row">
+
+        <div class="row">
+          <div class="col s12">
+            <div class="card">
+              <div class="card-image">
+                <img src="image10.jpeg">
+                <span class="card-title">Card Title</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+
+          <div class="col s12 m4">
+            <div class="card">
+              <div class="card-image">
+                <img src="image1.jpeg" height="248">
+                <span class="card-title">Card Title</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col s12 m4">
+            <div class="card">
+              <div class="card-image">
+                <img src="image8.jpeg">
+                <span class="card-title">Card Title</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col s12 m4">
+            <div class="card">
+              <div class="card-image">
+                <img src="image7.jpeg">
+                <span class="card-title">Card Title</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row">
+          
+          <div class="col s12 m4">
+            <div class="card">
+              <div class="card-image">
+                <img src="image2.jpeg">
+                <span class="card-title">Card Title</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col s12 m4">
+            <div class="card">
+              <div class="card-image">
+                <img src="image3.jpeg">
+                <span class="card-title">Card Title</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col s12 m4">
+            <div class="card">
+              <div class="card-image">
+                <img src="image5.jpeg">
+                <span class="card-title">Card Title</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row">
+
+          <div class="col s12 m4 offset-m2">
+            <div class="card">
+              <div class="card-image">
+                <img src="image4.jpeg" height="290">
+                <span class="card-title">Card Title</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col s12 m4">
+            <div class="card">
+              <div class="card-image">
+                <img src="image6.jpeg">
+                <span class="card-title">Card Title</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <br>
+    <br>
+    <br>
+
     <section id="sports">
       <div class="sports-overlay">
         <div class="container" style="padding: 2%">
-        <div class="row">
+        <div class="row" style="height: 600px;">
           <h3 class="center-align" style="color: silver; text-shadow: 4px 2px 5px gray">Sports</h3>
           <div class="col s12 m4 center-align">
-            <p style="font-size: 30px; font-family: 'Open Sans', sans-serif; color: white !important;">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam tempora nisi similique voluptate nihil, temporibus saepe eius excepturi assumenda aliquam error in ducimus dolorum totam suscipit esse quaerat incidunt voluptatum.</p>
+            <p style="font-family: 'Cairo', sans-serif; font-size: 20px; color: white !important; background: rgb(0,0,0,0.5); border-radius: 5%; padding: 10%; margin-top: 90% !important">
+              We encourage our students to participate in different sports activity in order to maintain their health and make them fit for study.
+            </p>
           </div>
         </div>
       </div>
       </div>
     </section>
 
-    <footer class="page-footer grey darken-3">
+    <section style="margin: 5% !important">
+      <div class="row center deep-purple-text darken-4-text">
+        <h3>Contact Us</h3>
+      </div>
+      <div class="row center" style="padding-top: 50px;">
+        <h4>Deepak Memorial Public School, Polasara</h4>
+        <h4>Ganjam</h4>
+        <h5>Contact: (+91) 1234567890</h4>
+        <h5>Mail us: DMPS@gmail.com</h4>
+      </div>
+    </section>
+
+    <section>
+      <div class="row center pink-text" style="padding: 4%">
+        <h3>Thank You. Visit Again...</h3>
+      </div>
+    </section>
+
+    <footer class="page-footer orange">
           <div class="container">
             <div class="row">
               <div class="col l6 s12">
@@ -242,9 +455,9 @@ style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-w
               </div>
             </div>
           </div>
-          <div class="footer-copyright grey darken-4">
-            <div class="container center">
-            © 2019 Copyright Reserved
+          <div class="footer-copyright orange darken-1">
+            <div class="container">
+              Developed by Biswajeet Padhi and Asish Kumar Nayak
             </div>
           </div>
         </footer>
@@ -276,8 +489,14 @@ style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-w
       });
       
     </script>
-    
+    {{!-- animate on scroll js --}}
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <!--JavaScript at end of body for optimized loading-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script>
+      AOS.init();
+    </script>
+
 </body>
 </html>

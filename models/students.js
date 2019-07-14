@@ -24,6 +24,27 @@ const studentSchema = new mongoose.Schema({
     trim: true,
     unique: true
   },
+  dob: {
+    type: String,
+    required: true,
+    minlength: 10,
+    maxlength: 10,
+    trim: true,
+  },
+  dateOfAdmission: {
+    type: String,
+    required: true,
+    minlength: 10,
+    maxlength: 10,
+    trim: true,
+  },
+  gender: {
+    type: String,
+    required: true,
+    minlength: 1,
+    maxlength: 1,
+    trim: true,
+  },
   dateOfJoin: {
     type: String,
     required: true,

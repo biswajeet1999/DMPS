@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>DMPS</title>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!--j-Query-->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+</head>
+<body>
+    <!--navbar-->
+    <nav class="blue">
+        <div class="container">
+          <div class="nav-wrapper">
+              <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+              <a href="#" class="brand-logo">DMPS</a>
+              <ul id="nav-mobile" class="left hide-on-med-and-down right">
+                <li><a href="/">Home</a></li>
+                <li><a href="/notice">Notice</a></li>
+                <li><a href="/teacher">Teacher</a></li>
+                <li><a href="/student/login"><i class="material-icons left">school</i>Student</a></li>
+                <li><a href="/admin/login"><i class="material-icons left">person</i>Admin</a></li>
+                <li><a href="#" class="right"><svg style="position: relative; top: 8px;" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+width="25" height="25"
+viewBox="0 0 192 192"
+style=" fill:#000000;"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><path d="M0,192v-192h192v192z" fill="none"></path><g fill="#ffffff"><path d="M152,24h-112c-8.84,0 -16,7.16 -16,16v112c0,8.84 7.16,16 16,16h60.968v-55.688h-18.744v-21.8h18.744v-16.04c0,-18.592 11.368,-28.728 27.96,-28.728c5.592,-0.016 11.176,0.272 16.736,0.84v19.44h-11.424c-9.04,0 -10.8,4.272 -10.8,10.576v13.88h21.6l-2.808,21.8h-18.92v55.72h28.688c8.84,0 16,-7.16 16,-16v-112c0,-8.84 -7.16,-16 -16,-16z"></path></g></g></svg></a></li>
+              </ul>              
+              <!--sidebar menu-->
+              <ul class="sidenav" id="mobile-demo">
+                  <li><a href="/" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Home</a></li>
+                  <li><a href="/notice" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Notice</a></li>
+                  <li><a href="/teacher" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Teacher</a></li>
+                  <li><a href="/student/login" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Student</a></li>
+                  <li><a href="/admin/login" class="btn waves-effect light-blue accent-3 white-text z-depth-4">Admin</a></li>
+                </ul>
+              </div>              
+          </div>
+      </nav> 
+
+    <!--body-->
+    
+    <!--footer-->
+
+    <!--materialize init-->
+    <script>
+      
+      $('document').ready(() => {
+        // sidebar init
+        $('.sidenav').sidenav();
+      });
+
+      
+    </script>
+    
+    <!--JavaScript at end of body for optimized loading-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>

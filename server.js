@@ -190,6 +190,10 @@ app.post('/admin/signin', upload.single(), passport.authenticate('Admin', {
   failureRedirect: '/admin/login',
 }));
 
+app.get('/apply', (req, res) => {
+  res.render('applyform.hbs');
+});
+
 // =================================================================================================================================
 // ================================================ S T U D E N T   P E N A L ======================================================
 // =================================================================================================================================
@@ -293,8 +297,11 @@ app.post('/admin/student/store', ensureAuthenticated, upload.single(), (req, res
   let phone = req.body.phone;
   let studentid = name + phone.slice(phone.length-3, phone.length);
   let password = dateOfJoin + phone.slice(phone.length-3, phone.length);
+  let dob = req.body.dob;
+  let dateOfAdmission = req.body.doa;
+  let gender = req.body.gender;
 
-  let student = {name, father, mother, dateOfJoin, dateOfPassout, address, phone, adhar, studentid, password};
+  let student = {name, father, mother, dateOfJoin, dob, dateOfAdmission, gender, dateOfPassout, address, phone, adhar, studentid, password};
   StudentModel.findOne(student).then((stud) => {
     if (stud) {
       return res.render("adminstudentadd.hbs", {name: req.user.name, msg:'Duplicate Student'});
@@ -302,7 +309,6 @@ app.post('/admin/student/store', ensureAuthenticated, upload.single(), (req, res
       new StudentModel(student).save().then((student) => {
         res.render("adminstudentadd.hbs", {name: req.user.name, account:{studentid, password}});
       }, (err) => {
-        console.log(err)
         res.render("adminstudentadd.hbs", {name: req.user.name, msg:'Unable to store student'});
       });
     }
@@ -663,12 +669,11 @@ app.post('/admin/class/downloadlist', ensureAuthenticated, upload.single(), asyn
   for (let i=0; i < clsObj.section.length; i++) {
     for (let j=0; j < clsObj.section[i].students.length; j++) {
       let student = await getStudent(clsObj.section[i].students[j].studentid);
-      studentslist.push({name: student.name, father: student.father, mother: student.mother, class: cls, aadhar: student.adhar, address: student.address});
+      studentslist.push({name: student.name, father: student.father, mother: student.mother, class: cls, dob: student.dob, gender: student.gender, dateOfAdmission: student.dateOfAdmission, aadhar: student.adhar, address: student.address});
     }
   }
-  console.log(studentslist)
   // convert JSON to csv
-  let csv = json2csv(studentslist, {fileds: ['name', 'father name', 'mother name', 'class', 'aadhar', 'address']});
+  let csv = json2csv(studentslist, {fileds: ['name', 'father name', 'mother name', 'class', 'gender', 'dob', 'dateOfAdmission', 'aadhar', 'address']});
   fs.writeFileSync(`./public/downloads/class_${cls}.csv`, csv);
   res.download(`./public/downloads/class_${cls}.csv`);
   req.filepath = `./public/downloads/class_${cls}.csv`
