@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 // mongoose.Promise = global.Promise;
-// mongoose.connect('mongodb://localhost:27017/dmps', { useNewUrlParser:true });
+// mongoose.connect('mongodb+srv://dmps:deepak@2019@cluster0-hshz5.mongodb.net/test?retryWrites=true&w=majority', { useNewUrlParser:true });
 
 // max mark store max mark for each subject of annual exam
 // max mark for annual and half-yearly exams are same
@@ -40,69 +40,47 @@ const subjectSchema = new mongoose.Schema({
 const SubjectModel = mongoose.model('subjects', subjectSchema);
 
 // let subject = new SubjectModel({
-//   "class" : "7",
-//     "subjects" : [ 
-//         {
-//             "name" : "mathstep",
-//             "totalexams" : 6,
-//             "maxmark" : 100
-//         }, 
-//         {
-//             "name" : "english",
-//             "totalexams" : 6,
-//             "maxmark" : 100
-//         }, 
-//         {
-//             "name" : "mil",
-//             "totalexams" : 6,
-//             "maxmark" : 100
-//         }, 
-//         {
-//             "name" : "history",
-//             "totalexams" : 6,
-//             "maxmark" : 50
-//         }, 
-//         {
-//             "name" : "geography",
-//             "totalexams" : 6,
-//             "maxmark" : 50
-//         }, 
-//         {
-//             "name" : "sanskrit",
-//             "totalexams" : 6,
-//             "maxmark" : 50
-//         }, 
-//         {
-//             "name" : "story",
-//             "totalexams" : 6,
-//             "maxmark" : 50
-//         }, 
-//         {
-//             "name" : "drawing",
-//             "totalexams" : 6,
-//             "maxmark" : 50
-//         }, 
-//         {
-//             "name" : "science",
-//             "totalexams" : 6,
-//             "maxmark" : 100
-//         }, 
-//         {
-//             "name" : "matho",
-//             "totalexams" : 6,
-//             "maxmark" : 100
-//         }, 
-//         {
-//             "name" : "hindi",
-//             "totalexams" : 6,
-//             "maxmark" : 50
-//         }, 
-//         {
-//             "name" : "gk",
-//             "totalexams" : 6,
-//             "maxmark" : 100
-//         }
-//     ]
+//   "_id" : ObjectId("5d1cbfbb84b02125a4368fed"),
+//   "class" : "lkg",
+//   "subjects" : [ 
+//       {
+//           "_id" : ObjectId("5d1cbfbb84b02125a4368ff3"),
+//           "name" : "mathstep",
+//           "totalexams" : 6,
+//           "maxmark" : 100
+//       }, 
+//       {
+//           "_id" : ObjectId("5d1cbfbb84b02125a4368ff2"),
+//           "name" : "english",
+//           "totalexams" : 6,
+//           "maxmark" : 100
+//       }, 
+//       {
+//           "_id" : ObjectId("5d1cbfbb84b02125a4368ff1"),
+//           "name" : "mil",
+//           "totalexams" : 6,
+//           "maxmark" : 100
+//       }, 
+//       {
+//           "_id" : ObjectId("5d1cbfbb84b02125a4368ff0"),
+//           "name" : "story",
+//           "totalexams" : 6,
+//           "maxmark" : 50
+//       }, 
+//       {
+//           "_id" : ObjectId("5d1cbfbb84b02125a4368fef"),
+//           "name" : "drawing",
+//           "totalexams" : 6,
+//           "maxmark" : 50
+//       }, 
+//       {
+//           "_id" : ObjectId("5d1cbfbb84b02125a4368fee"),
+//           "name" : "hindi",
+//           "totalexams" : 6,
+//           "maxmark" : 50
+//       }
+//   ],
+//   "__v" : 0
 // });
 
 // subject.save().then((obj)=>{}, (err)=>{console.log(err)})
